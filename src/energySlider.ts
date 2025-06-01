@@ -1,3 +1,5 @@
+import { formatBarIcons } from "./types";
+
 export class EnergySlider {
   resolveFn: ((value: number | null) => void) | null = null;
   selectedValue: number = 50;
@@ -47,10 +49,8 @@ export class EnergySlider {
       const settings = (window as any).app?.plugins?.plugins?.["obsidian-mood-energy-plugin"]?.settings || {
         energyDisplay: "bar",
         energyFormat: "Energy: {value}",
-        barFull: "\u25AE",
-        barHalf: "",
-        barEmpty: "\u25AF",
-        barIcons: 5,
+        barIcons: "⣿⣷⣶⣦⣤⣄⣀",
+        barIconCount: 7,
         energyOnlyFormat: "Energy: {value}",
         moodOnlyFormat: "{value}",
         moodAndEnergyFormat: "{mood} | {energy}"
@@ -60,26 +60,7 @@ export class EnergySlider {
       if (settings.energyDisplay === "percent") {
         output = settings.energyOnlyFormat.replace("{value}", `${value}%`);
       } else if (settings.energyDisplay === "bar") {
-        const totalBars = settings.barIcons || 5;
-        const percent = value / 100;
-        const bars = percent * totalBars;
-        const fullBars = Math.floor(bars);
-        const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-        let halfBars = 0;
-        if (hasHalf) {
-          if (bars - fullBars >= 0.75) {
-            output = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-            preview.innerText = output;
-            return;
-          } else if (bars - fullBars >= 0.25) {
-            halfBars = 1;
-          }
-        }
-        const emptyBars = totalBars - fullBars - halfBars;
-        output = settings.energyOnlyFormat.replace(
-          "{value}",
-          settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-        );
+        output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
       } else {
         output = settings.energyOnlyFormat.replace("{value}", `${value}`);
       }

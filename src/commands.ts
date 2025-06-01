@@ -1,7 +1,7 @@
 import { MarkdownView } from "obsidian";
 import { MoodMenu } from "./moodMenu";
 import { EnergySlider } from "./energySlider";
-import { loadMoodsFromFile } from "./types";
+import { loadMoodsFromFile, formatBarIcons } from "./types";
 
 export function showMoodAndEnergyModal(plugin: any) {
   const modal = document.createElement("div");
@@ -73,26 +73,7 @@ export function showMoodAndEnergyModal(plugin: any) {
     if (settings.energyDisplay === "percent") {
       output = settings.energyFormat.replace("{value}", `${value}%`);
     } else if (settings.energyDisplay === "bar") {
-      const totalBars = settings.barIcons || 5;
-      const percent = value / 100;
-      const bars = percent * totalBars;
-      const fullBars = Math.floor(bars);
-      const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-      let halfBars = 0;
-      if (hasHalf) {
-        if (bars - fullBars >= 0.75) {
-          output = settings.energyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-          preview.innerText = output;
-          return;
-        } else if (bars - fullBars >= 0.25) {
-          halfBars = 1;
-        }
-      }
-      const emptyBars = totalBars - fullBars - halfBars;
-      output = settings.energyFormat.replace(
-        "{value}",
-        settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-      );
+      output = settings.energyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
     } else {
       output = settings.energyFormat.replace("{value}", `${value}`);
     }
@@ -271,36 +252,17 @@ export function showMoodAndEnergyModal(plugin: any) {
     if (editor && selectedMood) {
       const settings = plugin.settings;
       let energyStr = "";
+      const value = parseInt(slider.value);
       if (settings.energyDisplay === "percent") {
-        energyStr = settings.energyOnlyFormat.replace("{value}", `${slider.value}%`);
+        energyStr = settings.energyOnlyFormat.replace("{value}", `${value}%`);
       } else if (settings.energyDisplay === "bar") {
-        const totalBars = settings.barIcons || 5;
-        const percent = parseInt(slider.value) / 100;
-        const bars = percent * totalBars;
-        const fullBars = Math.floor(bars);
-        const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-        let halfBars = 0;
-        if (hasHalf) {
-          if (bars - fullBars >= 0.75) {
-            energyStr = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-          } else if (bars - fullBars >= 0.25) {
-            halfBars = 1;
-          }
-        }
-        if (!energyStr) {
-          const emptyBars = totalBars - fullBars - halfBars;
-          energyStr = settings.energyOnlyFormat.replace(
-            "{value}",
-            settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-          );
-        }
+        energyStr = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
       } else {
-        energyStr = settings.energyOnlyFormat.replace("{value}", slider.value);
+        energyStr = settings.energyOnlyFormat.replace("{value}", `${value}`);
       }
       const format = settings.moodAndEnergyFormat || "{mood} | {energy}";
       const output = format.replace("{mood}", selectedMood).replace("{energy}", energyStr);
       editor.replaceSelection(output);
-      // Do not set the cursor position after replaceSelection to avoid RangeError
       if (editor.focus) editor.focus();
     }
     document.body.removeChild(modal);
@@ -345,27 +307,7 @@ export function registerCommands(plugin: any) {
           if (settings.energyDisplay === "percent") {
             output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}%`);
           } else if (settings.energyDisplay === "bar") {
-            const totalBars = settings.barIcons || 5;
-            const percent = selectedEnergyLevel / 100;
-            const bars = percent * totalBars;
-            const fullBars = Math.floor(bars);
-            const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-            let halfBars = 0;
-            if (hasHalf) {
-              if (bars - fullBars >= 0.75) {
-                output = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-                editor.replaceSelection(output);
-                if (editor.focus) editor.focus();
-                return;
-              } else if (bars - fullBars >= 0.25) {
-                halfBars = 1;
-              }
-            }
-            const emptyBars = totalBars - fullBars - halfBars;
-            output = settings.energyOnlyFormat.replace(
-              "{value}",
-              settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-            );
+            output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, selectedEnergyLevel, settings.barIconCount));
           } else {
             output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}`);
           }

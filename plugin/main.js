@@ -31,30 +31,166 @@ var DEFAULT_SETTINGS = {
   moodsFilePath: "moods.txt",
   energyDisplay: "bar",
   energyFormat: "Energy: {value}",
-  barFull: "",
-  barHalf: "",
-  barEmpty: "\x1B",
-  barIcons: 5,
+  barIcons: "\u28FF\u28F7\u28F6\u28E6\u28E4\u28C4\u28C0",
+  // Default: 7 levels
+  barIconCount: 7,
   energyOnlyFormat: "Energy: {value}",
   moodOnlyFormat: "{value}",
   moodAndEnergyFormat: "{mood} | {energy}"
+};
+function formatBarIcons(barIcons, value, iconCount) {
+  if (!barIcons || barIcons.length < 2 || iconCount < 1)
+    return value.toString();
+  const levels = barIcons.length;
+  const percent = Math.max(0, Math.min(100, value));
+  let bar = "";
+  for (let i = 0; i < iconCount; i++) {
+    const iconPercent = 100 * (i + 1) / iconCount;
+    const rel = percent - 100 * i / iconCount;
+    let iconLevel = Math.round((1 - rel / (100 / iconCount)) * (levels - 1));
+    if (percent >= iconPercent)
+      iconLevel = 0;
+    else if (percent <= 100 * i / iconCount)
+      iconLevel = levels - 1;
+    iconLevel = Math.max(0, Math.min(levels - 1, iconLevel));
+    bar += barIcons[iconLevel];
+  }
+  return bar;
+}
+var FilePathSuggester = class {
+  constructor(inputEl, app) {
+    let lastSuggestions = [];
+    let dropdown = null;
+    let selectedIdx = -1;
+    let items = [];
+    const highlightClass = "file-path-suggester-highlight";
+    if (!document.getElementById("file-path-suggester-style")) {
+      const style = document.createElement("style");
+      style.id = "file-path-suggester-style";
+      style.textContent = `
+        .file-path-suggester-dropdown {
+          background: var(--background-secondary);
+          border: 1px solid var(--background-modifier-border);
+          color: var(--text-normal);
+          box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+          border-radius: var(--radius-m);
+          font-size: var(--font-ui-medium);
+          padding: 4px 0;
+        }
+        .file-path-suggester-dropdown div {
+          padding: 4px 12px;
+          cursor: pointer;
+          border-radius: var(--radius-s);
+        }
+        .file-path-suggester-dropdown div:hover,
+        .file-path-suggester-highlight {
+          background: var(--background-modifier-hover);
+          color: var(--text-accent);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    function closeDropdown() {
+      if (dropdown)
+        dropdown.remove();
+      dropdown = null;
+      items = [];
+      selectedIdx = -1;
+    }
+    function openDropdown(suggestions) {
+      closeDropdown();
+      if (!suggestions.length)
+        return;
+      dropdown = document.createElement("div");
+      dropdown.className = "file-path-suggester-dropdown";
+      dropdown.style.position = "absolute";
+      dropdown.style.zIndex = "9999";
+      dropdown.style.maxHeight = "200px";
+      dropdown.style.overflowY = "auto";
+      dropdown.style.width = inputEl.offsetWidth + "px";
+      const rect = inputEl.getBoundingClientRect();
+      dropdown.style.left = rect.left + window.scrollX + "px";
+      dropdown.style.top = rect.bottom + window.scrollY + "px";
+      suggestions.forEach((s, idx) => {
+        const item = document.createElement("div");
+        item.textContent = s;
+        item.tabIndex = -1;
+        item.onmouseenter = () => {
+          setHighlight(idx);
+        };
+        item.onmouseleave = () => {
+          setHighlight(-1);
+        };
+        item.onmousedown = (e) => {
+          e.preventDefault();
+          inputEl.value = s;
+          inputEl.dispatchEvent(new Event("input"));
+          closeDropdown();
+        };
+        dropdown.appendChild(item);
+        items.push(item);
+      });
+      document.body.appendChild(dropdown);
+    }
+    function setHighlight(idx) {
+      items.forEach((el, i) => {
+        if (i === idx)
+          el.classList.add(highlightClass);
+        else
+          el.classList.remove(highlightClass);
+      });
+      selectedIdx = idx;
+    }
+    inputEl.addEventListener("input", () => {
+      const query = inputEl.value.toLowerCase();
+      const files = app.vault.getFiles();
+      const suggestions = files.map((f) => f.path).filter((path) => path.toLowerCase().includes(query)).slice(0, 20);
+      lastSuggestions = suggestions;
+      openDropdown(suggestions);
+    });
+    inputEl.addEventListener("keydown", (e) => {
+      if (!dropdown || !items.length)
+        return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setHighlight((selectedIdx + 1) % items.length);
+        items[selectedIdx]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setHighlight((selectedIdx - 1 + items.length) % items.length);
+        items[selectedIdx]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        if (selectedIdx >= 0 && selectedIdx < items.length) {
+          inputEl.value = lastSuggestions[selectedIdx];
+          inputEl.dispatchEvent(new Event("input"));
+          closeDropdown();
+          e.preventDefault();
+        }
+      } else if (e.key === "Escape") {
+        closeDropdown();
+      }
+    });
+    inputEl.addEventListener("blur", () => setTimeout(closeDropdown, 100));
+  }
 };
 var MoodEnergySettingTab = class extends import_obsidian.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
+    plugin.settingTab = this;
   }
   display() {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Mood & Energy Plugin Settings" });
     containerEl.createEl("h3", { text: "Mood Settings" });
-    new import_obsidian.Setting(containerEl).setName("Moods File Path").setDesc("Path to the file containing your moods, one per line (excluding frontmatter).").addText(
-      (text) => text.setPlaceholder("moods.txt").setValue(this.plugin.settings.moodsFilePath).onChange(async (value) => {
+    new import_obsidian.Setting(containerEl).setName("Moods File Path").setDesc("Path to the file containing your moods, one per line (excluding frontmatter). Start typing to see suggestions from your vault.").addText((text) => {
+      text.setPlaceholder("moods.txt").setValue(this.plugin.settings.moodsFilePath).onChange(async (value) => {
         this.plugin.settings.moodsFilePath = value;
         await this.plugin.saveSettings();
-      })
-    );
+      });
+      setTimeout(() => new FilePathSuggester(text.inputEl, this.app), 0);
+    });
     containerEl.createEl("h3", { text: "Energy Settings" });
     new import_obsidian.Setting(containerEl).setName("Energy Display").setDesc("How to display the energy value: as text, percent, or a progress bar.").addDropdown(
       (dropdown) => dropdown.addOption("text", "Text").addOption("percent", "Percent").addOption("bar", "Progress Bar").setValue(this.plugin.settings.energyDisplay).onChange(async (value) => {
@@ -64,29 +200,17 @@ var MoodEnergySettingTab = class extends import_obsidian.PluginSettingTab {
       })
     );
     if (this.plugin.settings.energyDisplay === "bar") {
-      new import_obsidian.Setting(containerEl).setName("Bar Full Icon").setDesc("Icon for a full bar (e.g. \u25AE)").addText(
-        (text) => text.setPlaceholder("\u25AE").setValue(this.plugin.settings.barFull).onChange(async (value) => {
-          this.plugin.settings.barFull = value;
+      new import_obsidian.Setting(containerEl).setName("Bar Icons").setDesc("Icons for the progress bar, from full to empty (e.g. \u28FF\u28F7\u28F6\u28E6\u28E4\u28C4\u28C0 or \u2588\u2593\u2592\u2591)").addText(
+        (text) => text.setPlaceholder("\u28FF\u28F7\u28F6\u28E6\u28E4\u28C4\u28C0").setValue(this.plugin.settings.barIcons).onChange(async (value) => {
+          this.plugin.settings.barIcons = value;
           await this.plugin.saveSettings();
         })
       );
-      new import_obsidian.Setting(containerEl).setName("Bar Half Icon").setDesc("Icon for a half bar (optional, e.g. \u25B0)").addText(
-        (text) => text.setPlaceholder("").setValue(this.plugin.settings.barHalf).onChange(async (value) => {
-          this.plugin.settings.barHalf = value;
-          await this.plugin.saveSettings();
-        })
-      );
-      new import_obsidian.Setting(containerEl).setName("Bar Empty Icon").setDesc("Icon for an empty bar (e.g. \u25AF)").addText(
-        (text) => text.setPlaceholder("\u25AF").setValue(this.plugin.settings.barEmpty).onChange(async (value) => {
-          this.plugin.settings.barEmpty = value;
-          await this.plugin.saveSettings();
-        })
-      );
-      new import_obsidian.Setting(containerEl).setName("Bar Icon Count").setDesc("Number of icons in the progress bar (e.g. 5, 10, 20)").addText(
-        (text) => text.setPlaceholder("5").setValue(this.plugin.settings.barIcons.toString()).onChange(async (value) => {
+      new import_obsidian.Setting(containerEl).setName("Bar Icon Count").setDesc("Number of icons in the progress bar (e.g. 5, 7, 10, 20)").addText(
+        (text) => text.setPlaceholder("7").setValue(this.plugin.settings.barIconCount.toString()).onChange(async (value) => {
           const num = parseInt(value);
           if (!isNaN(num) && num > 0) {
-            this.plugin.settings.barIcons = num;
+            this.plugin.settings.barIconCount = num;
             await this.plugin.saveSettings();
           }
         })
@@ -388,10 +512,8 @@ var EnergySlider = class {
       const settings = window.app?.plugins?.plugins?.["obsidian-mood-energy-plugin"]?.settings || {
         energyDisplay: "bar",
         energyFormat: "Energy: {value}",
-        barFull: "\u25AE",
-        barHalf: "",
-        barEmpty: "\u25AF",
-        barIcons: 5,
+        barIcons: "\u28FF\u28F7\u28F6\u28E6\u28E4\u28C4\u28C0",
+        barIconCount: 7,
         energyOnlyFormat: "Energy: {value}",
         moodOnlyFormat: "{value}",
         moodAndEnergyFormat: "{mood} | {energy}"
@@ -401,26 +523,7 @@ var EnergySlider = class {
       if (settings.energyDisplay === "percent") {
         output = settings.energyOnlyFormat.replace("{value}", `${value}%`);
       } else if (settings.energyDisplay === "bar") {
-        const totalBars = settings.barIcons || 5;
-        const percent = value / 100;
-        const bars = percent * totalBars;
-        const fullBars = Math.floor(bars);
-        const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-        let halfBars = 0;
-        if (hasHalf) {
-          if (bars - fullBars >= 0.75) {
-            output = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-            preview.innerText = output;
-            return;
-          } else if (bars - fullBars >= 0.25) {
-            halfBars = 1;
-          }
-        }
-        const emptyBars = totalBars - fullBars - halfBars;
-        output = settings.energyOnlyFormat.replace(
-          "{value}",
-          settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-        );
+        output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
       } else {
         output = settings.energyOnlyFormat.replace("{value}", `${value}`);
       }
@@ -534,26 +637,7 @@ function showMoodAndEnergyModal(plugin) {
     if (settings.energyDisplay === "percent") {
       output = settings.energyFormat.replace("{value}", `${value}%`);
     } else if (settings.energyDisplay === "bar") {
-      const totalBars = settings.barIcons || 5;
-      const percent = value / 100;
-      const bars = percent * totalBars;
-      const fullBars = Math.floor(bars);
-      const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-      let halfBars = 0;
-      if (hasHalf) {
-        if (bars - fullBars >= 0.75) {
-          output = settings.energyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-          preview.innerText = output;
-          return;
-        } else if (bars - fullBars >= 0.25) {
-          halfBars = 1;
-        }
-      }
-      const emptyBars = totalBars - fullBars - halfBars;
-      output = settings.energyFormat.replace(
-        "{value}",
-        settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-      );
+      output = settings.energyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
     } else {
       output = settings.energyFormat.replace("{value}", `${value}`);
     }
@@ -732,31 +816,13 @@ function showMoodAndEnergyModal(plugin) {
     if (editor && selectedMood) {
       const settings = plugin.settings;
       let energyStr = "";
+      const value = parseInt(slider.value);
       if (settings.energyDisplay === "percent") {
-        energyStr = settings.energyOnlyFormat.replace("{value}", `${slider.value}%`);
+        energyStr = settings.energyOnlyFormat.replace("{value}", `${value}%`);
       } else if (settings.energyDisplay === "bar") {
-        const totalBars = settings.barIcons || 5;
-        const percent = parseInt(slider.value) / 100;
-        const bars = percent * totalBars;
-        const fullBars = Math.floor(bars);
-        const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-        let halfBars = 0;
-        if (hasHalf) {
-          if (bars - fullBars >= 0.75) {
-            energyStr = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-          } else if (bars - fullBars >= 0.25) {
-            halfBars = 1;
-          }
-        }
-        if (!energyStr) {
-          const emptyBars = totalBars - fullBars - halfBars;
-          energyStr = settings.energyOnlyFormat.replace(
-            "{value}",
-            settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-          );
-        }
+        energyStr = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
       } else {
-        energyStr = settings.energyOnlyFormat.replace("{value}", slider.value);
+        energyStr = settings.energyOnlyFormat.replace("{value}", `${value}`);
       }
       const format = settings.moodAndEnergyFormat || "{mood} | {energy}";
       const output = format.replace("{mood}", selectedMood).replace("{energy}", energyStr);
@@ -806,28 +872,7 @@ function registerCommands(plugin) {
           if (settings.energyDisplay === "percent") {
             output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}%`);
           } else if (settings.energyDisplay === "bar") {
-            const totalBars = settings.barIcons || 5;
-            const percent = selectedEnergyLevel / 100;
-            const bars = percent * totalBars;
-            const fullBars = Math.floor(bars);
-            const hasHalf = settings.barHalf && settings.barHalf.length > 0;
-            let halfBars = 0;
-            if (hasHalf) {
-              if (bars - fullBars >= 0.75) {
-                output = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
-                editor.replaceSelection(output);
-                if (editor.focus)
-                  editor.focus();
-                return;
-              } else if (bars - fullBars >= 0.25) {
-                halfBars = 1;
-              }
-            }
-            const emptyBars = totalBars - fullBars - halfBars;
-            output = settings.energyOnlyFormat.replace(
-              "{value}",
-              settings.barFull.repeat(fullBars) + (halfBars ? settings.barHalf : "") + settings.barEmpty.repeat(emptyBars)
-            );
+            output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, selectedEnergyLevel, settings.barIconCount));
           } else {
             output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}`);
           }

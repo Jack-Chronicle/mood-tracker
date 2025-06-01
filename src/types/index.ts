@@ -1,13 +1,11 @@
-import { PluginSettingTab, Setting, TFile, normalizePath } from "obsidian";
+import { PluginSettingTab, Setting, TFile, normalizePath, App, SuggestModal, TextComponent } from "obsidian";
 
 export interface MoodEnergyPluginSettings {
   moodsFilePath: string;
   energyDisplay: "text" | "percent" | "bar";
   energyFormat: string;
-  barFull: string;
-  barHalf: string;
-  barEmpty: string;
-  barIcons: number;
+  barIcons: string; // e.g. '⣿⣷⣶⣦⣤⣄⣀' or '█▓▒░'
+  barIconCount: number; // number of icons in the bar
   energyOnlyFormat: string;
   moodOnlyFormat: string;
   moodAndEnergyFormat: string;
@@ -17,20 +15,176 @@ export const DEFAULT_SETTINGS: MoodEnergyPluginSettings = {
   moodsFilePath: "moods.txt",
   energyDisplay: "bar",
   energyFormat: "Energy: {value}",
-  barFull: "",
-  barHalf: "",
-  barEmpty: "",
-  barIcons: 5,
+  barIcons: "⣿⣷⣶⣦⣤⣄⣀", // Default: 7 levels
+  barIconCount: 7,
   energyOnlyFormat: "Energy: {value}",
   moodOnlyFormat: "{value}",
   moodAndEnergyFormat: "{mood} | {energy}"
 };
+
+// Helper to format a progress bar using icon list and icon count
+export function formatBarIcons(barIcons: string, value: number, iconCount: number): string {
+  if (!barIcons || barIcons.length < 2 || iconCount < 1) return value.toString();
+  const levels = barIcons.length;
+  const percent = Math.max(0, Math.min(100, value));
+  let bar = "";
+  for (let i = 0; i < iconCount; i++) {
+    // For each icon, determine how full it should be
+    const iconPercent = 100 * (i + 1) / iconCount;
+    const rel = percent - (100 * i / iconCount);
+    let iconLevel = Math.round((1 - rel / (100 / iconCount)) * (levels - 1));
+    if (percent >= iconPercent) iconLevel = 0; // full
+    else if (percent <= 100 * i / iconCount) iconLevel = levels - 1; // empty
+    iconLevel = Math.max(0, Math.min(levels - 1, iconLevel));
+    bar += barIcons[iconLevel];
+  }
+  return bar;
+}
+
+export class MoodFileSuggestModal extends SuggestModal<string> {
+  plugin: any;
+  constructor(app: App, plugin: any) {
+    super(app);
+    this.plugin = plugin;
+  }
+  getSuggestions(query: string): string[] {
+    const files = this.app.vault.getFiles();
+    return files
+      .map(f => f.path)
+      .filter(path => path.toLowerCase().includes(query.toLowerCase()));
+  }
+  renderSuggestion(value: string, el: HTMLElement) {
+    el.setText(value);
+  }
+  onChooseSuggestion(value: string) {
+    this.plugin.settings.moodsFilePath = value;
+    this.plugin.saveSettings();
+    if (this.plugin.settingTab?.display) this.plugin.settingTab.display();
+  }
+}
+
+export class FilePathSuggester {
+  constructor(inputEl: HTMLInputElement, app: App) {
+    let lastSuggestions: string[] = [];
+    let dropdown: HTMLDivElement | null = null;
+    let selectedIdx: number = -1;
+    let items: HTMLDivElement[] = [];
+    const highlightClass = "file-path-suggester-highlight";
+    // Add style for highlight and dropdown
+    if (!document.getElementById("file-path-suggester-style")) {
+      const style = document.createElement("style");
+      style.id = "file-path-suggester-style";
+      style.textContent = `
+        .file-path-suggester-dropdown {
+          background: var(--background-secondary);
+          border: 1px solid var(--background-modifier-border);
+          color: var(--text-normal);
+          box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+          border-radius: var(--radius-m);
+          font-size: var(--font-ui-medium);
+          padding: 4px 0;
+        }
+        .file-path-suggester-dropdown div {
+          padding: 4px 12px;
+          cursor: pointer;
+          border-radius: var(--radius-s);
+        }
+        .file-path-suggester-dropdown div:hover,
+        .file-path-suggester-highlight {
+          background: var(--background-modifier-hover);
+          color: var(--text-accent);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    function closeDropdown() {
+      if (dropdown) dropdown.remove();
+      dropdown = null;
+      items = [];
+      selectedIdx = -1;
+    }
+    function openDropdown(suggestions: string[]) {
+      closeDropdown();
+      if (!suggestions.length) return;
+      dropdown = document.createElement("div");
+      dropdown.className = "file-path-suggester-dropdown";
+      dropdown.style.position = "absolute";
+      dropdown.style.zIndex = "9999";
+      dropdown.style.maxHeight = "200px";
+      dropdown.style.overflowY = "auto";
+      dropdown.style.width = inputEl.offsetWidth + "px";
+      const rect = inputEl.getBoundingClientRect();
+      dropdown.style.left = rect.left + window.scrollX + "px";
+      dropdown.style.top = (rect.bottom + window.scrollY) + "px";
+      suggestions.forEach((s, idx) => {
+        const item = document.createElement("div");
+        item.textContent = s;
+        item.tabIndex = -1;
+        item.onmouseenter = () => {
+          setHighlight(idx);
+        };
+        item.onmouseleave = () => {
+          setHighlight(-1);
+        };
+        item.onmousedown = (e) => {
+          e.preventDefault();
+          inputEl.value = s;
+          inputEl.dispatchEvent(new Event("input"));
+          closeDropdown();
+        };
+        dropdown!.appendChild(item);
+        items.push(item);
+      });
+      document.body.appendChild(dropdown);
+    }
+    function setHighlight(idx: number) {
+      items.forEach((el, i) => {
+        if (i === idx) el.classList.add(highlightClass);
+        else el.classList.remove(highlightClass);
+      });
+      selectedIdx = idx;
+    }
+    inputEl.addEventListener("input", () => {
+      const query = inputEl.value.toLowerCase();
+      const files = app.vault.getFiles();
+      const suggestions = files
+        .map(f => f.path)
+        .filter(path => path.toLowerCase().includes(query))
+        .slice(0, 20);
+      lastSuggestions = suggestions;
+      openDropdown(suggestions);
+    });
+    inputEl.addEventListener("keydown", (e) => {
+      if (!dropdown || !items.length) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setHighlight((selectedIdx + 1) % items.length);
+        items[selectedIdx]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setHighlight((selectedIdx - 1 + items.length) % items.length);
+        items[selectedIdx]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        if (selectedIdx >= 0 && selectedIdx < items.length) {
+          inputEl.value = lastSuggestions[selectedIdx];
+          inputEl.dispatchEvent(new Event("input"));
+          closeDropdown();
+          e.preventDefault();
+        }
+      } else if (e.key === "Escape") {
+        closeDropdown();
+      }
+    });
+    inputEl.addEventListener("blur", () => setTimeout(closeDropdown, 100));
+  }
+}
 
 export class MoodEnergySettingTab extends PluginSettingTab {
   plugin: any;
   constructor(app: any, plugin: any) {
     super(app, plugin);
     this.plugin = plugin;
+    plugin.settingTab = this;
   }
   display(): void {
     const { containerEl } = this;
@@ -39,16 +193,17 @@ export class MoodEnergySettingTab extends PluginSettingTab {
     containerEl.createEl("h3", { text: "Mood Settings" });
     new Setting(containerEl)
       .setName("Moods File Path")
-      .setDesc("Path to the file containing your moods, one per line (excluding frontmatter).")
-      .addText((text) =>
-        text
-          .setPlaceholder("moods.txt")
+      .setDesc("Path to the file containing your moods, one per line (excluding frontmatter). Start typing to see suggestions from your vault.")
+      .addText((text: TextComponent) => {
+        text.setPlaceholder("moods.txt")
           .setValue(this.plugin.settings.moodsFilePath)
           .onChange(async (value) => {
             this.plugin.settings.moodsFilePath = value;
             await this.plugin.saveSettings();
-          })
-      );
+          });
+        // Attach inline file path suggester
+        setTimeout(() => new FilePathSuggester(text.inputEl, this.app), 0);
+      });
     containerEl.createEl("h3", { text: "Energy Settings" });
     new Setting(containerEl)
       .setName("Energy Display")
@@ -67,52 +222,28 @@ export class MoodEnergySettingTab extends PluginSettingTab {
       );
     if (this.plugin.settings.energyDisplay === "bar") {
       new Setting(containerEl)
-        .setName("Bar Full Icon")
-        .setDesc("Icon for a full bar (e.g. \u25AE)")
+        .setName("Bar Icons")
+        .setDesc("Icons for the progress bar, from full to empty (e.g. ⣿⣷⣶⣦⣤⣄⣀ or █▓▒░)")
         .addText((text) =>
           text
-            .setPlaceholder("\u25AE")
-            .setValue(this.plugin.settings.barFull)
+            .setPlaceholder("⣿⣷⣶⣦⣤⣄⣀")
+            .setValue(this.plugin.settings.barIcons)
             .onChange(async (value) => {
-              this.plugin.settings.barFull = value;
-              await this.plugin.saveSettings();
-            })
-        );
-      new Setting(containerEl)
-        .setName("Bar Half Icon")
-        .setDesc("Icon for a half bar (optional, e.g. \u25B0)")
-        .addText((text) =>
-          text
-            .setPlaceholder("")
-            .setValue(this.plugin.settings.barHalf)
-            .onChange(async (value) => {
-              this.plugin.settings.barHalf = value;
-              await this.plugin.saveSettings();
-            })
-        );
-      new Setting(containerEl)
-        .setName("Bar Empty Icon")
-        .setDesc("Icon for an empty bar (e.g. \u25AF)")
-        .addText((text) =>
-          text
-            .setPlaceholder("\u25AF")
-            .setValue(this.plugin.settings.barEmpty)
-            .onChange(async (value) => {
-              this.plugin.settings.barEmpty = value;
+              this.plugin.settings.barIcons = value;
               await this.plugin.saveSettings();
             })
         );
       new Setting(containerEl)
         .setName("Bar Icon Count")
-        .setDesc("Number of icons in the progress bar (e.g. 5, 10, 20)")
+        .setDesc("Number of icons in the progress bar (e.g. 5, 7, 10, 20)")
         .addText((text) =>
           text
-            .setPlaceholder("5")
-            .setValue(this.plugin.settings.barIcons.toString())
+            .setPlaceholder("7")
+            .setValue(this.plugin.settings.barIconCount.toString())
             .onChange(async (value) => {
               const num = parseInt(value);
               if (!isNaN(num) && num > 0) {
-                this.plugin.settings.barIcons = num;
+                this.plugin.settings.barIconCount = num;
                 await this.plugin.saveSettings();
               }
             })
