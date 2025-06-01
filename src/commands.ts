@@ -1,7 +1,7 @@
 import { MarkdownView } from "obsidian";
 import { MoodMenu } from "./moodMenu";
 import { EnergySlider } from "./energySlider";
-import { loadMoodsFromFile, formatBarIcons } from "./types";
+import { loadMoodsFromFile, formatBarIcons, openModal, closeModal, currentOpenModal } from "./types";
 
 export function showMoodAndEnergyModal(plugin: any) {
   const modal = document.createElement("div");
@@ -238,7 +238,7 @@ export function showMoodAndEnergyModal(plugin: any) {
         moodSectionGrid.style.display = "grid";
         backButton.style.display = "none";
       } else {
-        document.body.removeChild(modal);
+        closeModal(modal);
         window.removeEventListener("keydown", escListener);
       }
     }
@@ -246,7 +246,7 @@ export function showMoodAndEnergyModal(plugin: any) {
   window.addEventListener("keydown", escListener);
   modal.appendChild(moodContainer);
   modal.appendChild(controlsContainer);
-  document.body.appendChild(modal);
+  openModal(modal);
   okayButton.onclick = () => {
     const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor && selectedMood) {
@@ -265,19 +265,24 @@ export function showMoodAndEnergyModal(plugin: any) {
       editor.replaceSelection(output);
       if (editor.focus) editor.focus();
     }
-    document.body.removeChild(modal);
+    closeModal(modal);
   };
   cancelButton.onclick = () => {
-    document.body.removeChild(modal);
+    closeModal(modal);
   };
 }
 
 export function registerCommands(plugin: any) {
+  function canRunCommand() {
+    // Only require that no modal is open
+    return !currentOpenModal;
+  }
   plugin.addCommand({
     id: "insert-mood",
     name: "Insert Mood",
     hotkeys: [{ modifiers: ["Ctrl"], key: "M" }],
     callback: async () => {
+      if (!canRunCommand()) return;
       const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
       const moodMenu = new MoodMenu(moods);
       const selectedMood = await moodMenu.open();
@@ -297,6 +302,7 @@ export function registerCommands(plugin: any) {
     name: "Insert Energy Level",
     hotkeys: [{ modifiers: ["Ctrl"], key: "E" }],
     callback: async () => {
+      if (!canRunCommand()) return;
       const energySlider = new EnergySlider();
       const selectedEnergyLevel = await energySlider.open();
       if (selectedEnergyLevel !== null) {
@@ -321,6 +327,9 @@ export function registerCommands(plugin: any) {
     id: "insert-mood-and-energy",
     name: "Insert Mood and Energy Level",
     hotkeys: [{ modifiers: ["Ctrl"], key: "B" }],
-    callback: () => showMoodAndEnergyModal(plugin)
+    callback: () => {
+      if (!canRunCommand()) return;
+      showMoodAndEnergyModal(plugin);
+    }
   });
 }

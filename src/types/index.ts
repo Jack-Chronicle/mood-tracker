@@ -41,6 +41,24 @@ export function formatBarIcons(barIcons: string, value: number, iconCount: numbe
   return bar;
 }
 
+// --- Modal Management Utility ---
+export let currentOpenModal: HTMLElement | null = null;
+export function openModal(modalEl: HTMLElement) {
+  if (currentOpenModal && currentOpenModal !== modalEl) {
+    currentOpenModal.remove();
+  }
+  currentOpenModal = modalEl;
+  document.body.appendChild(modalEl);
+}
+export function closeModal(modalEl: HTMLElement) {
+  if (currentOpenModal === modalEl) {
+    modalEl.remove();
+    currentOpenModal = null;
+  } else {
+    modalEl.remove();
+  }
+}
+
 export class MoodFileSuggestModal extends SuggestModal<string> {
   plugin: any;
   constructor(app: App, plugin: any) {
@@ -98,7 +116,7 @@ export class FilePathSuggester {
       document.head.appendChild(style);
     }
     function closeDropdown() {
-      if (dropdown) dropdown.remove();
+      if (dropdown) closeModal(dropdown);
       dropdown = null;
       items = [];
       selectedIdx = -1;
@@ -135,7 +153,7 @@ export class FilePathSuggester {
         dropdown!.appendChild(item);
         items.push(item);
       });
-      document.body.appendChild(dropdown);
+      openModal(dropdown);
     }
     function setHighlight(idx: number) {
       items.forEach((el, i) => {

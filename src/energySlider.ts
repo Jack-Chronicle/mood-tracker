@@ -1,4 +1,4 @@
-import { formatBarIcons } from "./types";
+import { formatBarIcons, openModal, closeModal } from "./types";
 
 export class EnergySlider {
   resolveFn: ((value: number | null) => void) | null = null;
@@ -36,7 +36,7 @@ export class EnergySlider {
                 <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal, #fff);font-family:monospace;font-size:1.2em;"></div>
             </div>
             <div style="display:flex;gap:12px;margin-top:18px;">
-                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a7);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
+                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
                 <button id="cancelButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--color-red, #a33);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Cancel</button>
             </div>
         `;
@@ -92,15 +92,13 @@ export class EnergySlider {
   }
 
   open(): Promise<number | null> {
-    document.body.appendChild(this.modalElement);
+    openModal(this.modalElement);
     return new Promise((resolve) => {
       this.resolveFn = resolve;
     });
   }
 
   closeModal() {
-    if (this.modalElement.parentElement) {
-      this.modalElement.parentElement.removeChild(this.modalElement);
-    }
+    closeModal(this.modalElement);
   }
 }

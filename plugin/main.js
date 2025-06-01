@@ -57,6 +57,22 @@ function formatBarIcons(barIcons, value, iconCount) {
   }
   return bar;
 }
+var currentOpenModal = null;
+function openModal(modalEl) {
+  if (currentOpenModal && currentOpenModal !== modalEl) {
+    currentOpenModal.remove();
+  }
+  currentOpenModal = modalEl;
+  document.body.appendChild(modalEl);
+}
+function closeModal(modalEl) {
+  if (currentOpenModal === modalEl) {
+    modalEl.remove();
+    currentOpenModal = null;
+  } else {
+    modalEl.remove();
+  }
+}
 var FilePathSuggester = class {
   constructor(inputEl, app) {
     let lastSuggestions = [];
@@ -92,7 +108,7 @@ var FilePathSuggester = class {
     }
     function closeDropdown() {
       if (dropdown)
-        dropdown.remove();
+        closeModal(dropdown);
       dropdown = null;
       items = [];
       selectedIdx = -1;
@@ -130,7 +146,7 @@ var FilePathSuggester = class {
         dropdown.appendChild(item);
         items.push(item);
       });
-      document.body.appendChild(dropdown);
+      openModal(dropdown);
     }
     function setHighlight(idx) {
       items.forEach((el, i) => {
@@ -499,7 +515,7 @@ var EnergySlider = class {
                 <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal, #fff);font-family:monospace;font-size:1.2em;"></div>
             </div>
             <div style="display:flex;gap:12px;margin-top:18px;">
-                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a7);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
+                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
                 <button id="cancelButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--color-red, #a33);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Cancel</button>
             </div>
         `;
@@ -554,15 +570,13 @@ var EnergySlider = class {
     window.addEventListener("keydown", escListener);
   }
   open() {
-    document.body.appendChild(this.modalElement);
+    openModal(this.modalElement);
     return new Promise((resolve) => {
       this.resolveFn = resolve;
     });
   }
   closeModal() {
-    if (this.modalElement.parentElement) {
-      this.modalElement.parentElement.removeChild(this.modalElement);
-    }
+    closeModal(this.modalElement);
   }
 };
 
@@ -802,7 +816,7 @@ function showMoodAndEnergyModal(plugin) {
         moodSectionGrid.style.display = "grid";
         backButton.style.display = "none";
       } else {
-        document.body.removeChild(modal);
+        closeModal(modal);
         window.removeEventListener("keydown", escListener);
       }
     }
@@ -810,7 +824,7 @@ function showMoodAndEnergyModal(plugin) {
   window.addEventListener("keydown", escListener);
   modal.appendChild(moodContainer);
   modal.appendChild(controlsContainer);
-  document.body.appendChild(modal);
+  openModal(modal);
   okayButton.onclick = () => {
     const editor = plugin.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView)?.editor;
     if (editor && selectedMood) {
@@ -830,18 +844,23 @@ function showMoodAndEnergyModal(plugin) {
       if (editor.focus)
         editor.focus();
     }
-    document.body.removeChild(modal);
+    closeModal(modal);
   };
   cancelButton.onclick = () => {
-    document.body.removeChild(modal);
+    closeModal(modal);
   };
 }
 function registerCommands(plugin) {
+  function canRunCommand() {
+    return !currentOpenModal;
+  }
   plugin.addCommand({
     id: "insert-mood",
     name: "Insert Mood",
     hotkeys: [{ modifiers: ["Ctrl"], key: "M" }],
     callback: async () => {
+      if (!canRunCommand())
+        return;
       const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
       const moodMenu = new MoodMenu(moods);
       const selectedMood = await moodMenu.open();
@@ -862,6 +881,8 @@ function registerCommands(plugin) {
     name: "Insert Energy Level",
     hotkeys: [{ modifiers: ["Ctrl"], key: "E" }],
     callback: async () => {
+      if (!canRunCommand())
+        return;
       const energySlider = new EnergySlider();
       const selectedEnergyLevel = await energySlider.open();
       if (selectedEnergyLevel !== null) {
@@ -887,7 +908,11 @@ function registerCommands(plugin) {
     id: "insert-mood-and-energy",
     name: "Insert Mood and Energy Level",
     hotkeys: [{ modifiers: ["Ctrl"], key: "B" }],
-    callback: () => showMoodAndEnergyModal(plugin)
+    callback: () => {
+      if (!canRunCommand())
+        return;
+      showMoodAndEnergyModal(plugin);
+    }
   });
 }
 
