@@ -1,8 +1,15 @@
+// commands.ts
+// Command registration and modal logic for the Mood & Energy Obsidian plugin.
+
 import { MarkdownView } from "obsidian";
 import { MoodMenu } from "./moodMenu";
 import { EnergySlider } from "./energySlider";
 import { loadMoodsFromFile, formatBarIcons, openModal, closeModal, currentOpenModal } from "./types";
 
+/**
+ * Shows a combined modal for selecting both mood and energy, then inserts the formatted result into the editor.
+ * @param plugin - The plugin instance.
+ */
 export function showMoodAndEnergyModal(plugin: any) {
   const modal = document.createElement("div");
   modal.className = "mood-energy-modal";
@@ -10,19 +17,20 @@ export function showMoodAndEnergyModal(plugin: any) {
   modal.style.top = "50%";
   modal.style.left = "50%";
   modal.style.transform = "translate(-50%, -50%)";
-  modal.style.background = "var(--background-secondary, #222)";
+  modal.style.background = "var(--background-secondary)";
   modal.style.padding = "24px";
-  modal.style.borderRadius = "12px";
+  modal.style.borderRadius = "var(--radius-m)";
   modal.style.zIndex = "9999";
   modal.style.display = "flex";
   modal.style.flexDirection = "row";
   modal.style.alignItems = "stretch";
-  modal.style.boxShadow = "0 4px 32px var(--shadow-s, rgba(0,0,0,0.3))";
+  modal.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
   modal.style.maxHeight = "80vh";
   modal.style.overflow = "visible";
   modal.style.width = "min(900px, 98vw)";
   modal.style.minWidth = "340px";
   modal.style.maxWidth = "98vw";
+  modal.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
   const moodContainer = document.createElement("div");
   moodContainer.style.flex = "1 1 0";
   moodContainer.style.overflowY = "auto";
@@ -42,8 +50,8 @@ export function showMoodAndEnergyModal(plugin: any) {
   controlsContainer.style.width = "320px";
   controlsContainer.style.minWidth = "220px";
   controlsContainer.style.maxWidth = "340px";
-  controlsContainer.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
-  controlsContainer.style.borderRadius = "8px";
+  controlsContainer.style.background = "var(--background-modifier-hover)";
+  controlsContainer.style.borderRadius = "var(--radius-m)";
   controlsContainer.style.padding = "18px 18px 18px 18px";
   controlsContainer.style.boxSizing = "border-box";
   controlsContainer.style.height = "100%";
@@ -96,20 +104,22 @@ export function showMoodAndEnergyModal(plugin: any) {
   buttonRow.style.width = "100%";
   const okayButton = document.createElement("button");
   okayButton.innerText = "Okay";
-  okayButton.style.padding = "8px 18px";
-  okayButton.style.borderRadius = "8px";
-  okayButton.style.border = "none";
-  okayButton.style.background = "var(--interactive-accent, #3a7)";
-  okayButton.style.color = "var(--text-on-accent, #fff)";
+  okayButton.className = "mod-cta";
+  okayButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+  okayButton.style.borderRadius = "var(--radius-s)";
+  okayButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+  okayButton.style.background = "var(--interactive-accent)";
+  okayButton.style.color = "var(--text-on-accent)";
   okayButton.style.fontWeight = "bold";
   okayButton.style.cursor = "pointer";
   const cancelButton = document.createElement("button");
   cancelButton.innerText = "Cancel";
-  cancelButton.style.padding = "8px 18px";
-  cancelButton.style.borderRadius = "8px";
-  cancelButton.style.border = "none";
-  cancelButton.style.background = "var(--color-red, #a33)";
-  cancelButton.style.color = "var(--text-on-accent, #fff)";
+  cancelButton.className = "mod-cta";
+  cancelButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+  cancelButton.style.borderRadius = "var(--radius-s)";
+  cancelButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+  cancelButton.style.background = "var(--background-modifier-hover)";
+  cancelButton.style.color = "var(--color-red)";
   cancelButton.style.fontWeight = "bold";
   cancelButton.style.cursor = "pointer";
   buttonRow.appendChild(okayButton);
@@ -229,7 +239,7 @@ export function showMoodAndEnergyModal(plugin: any) {
   moodContainer.appendChild(moodSectionGrid);
   moodContainer.appendChild(moodSectionDetail);
   const style = document.createElement("style");
-  style.innerText = `.selected-mood { background: var(--interactive-accent, #3a7) !important; color: var(--text-on-accent, #fff) !important; border: 2px solid var(--background-primary, #fff) !important; }`;
+  style.innerText = `.selected-mood { background: var(--interactive-accent) !important; color: var(--text-on-accent) !important; border: var(--input-border-width) solid var(--background-primary) !important; }`;
   modal.appendChild(style);
   const escListener = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -272,6 +282,10 @@ export function showMoodAndEnergyModal(plugin: any) {
   };
 }
 
+/**
+ * Registers all plugin commands and their hotkeys with Obsidian.
+ * @param plugin - The plugin instance.
+ */
 export function registerCommands(plugin: any) {
   function canRunCommand() {
     // Only require that no modal is open
@@ -280,7 +294,7 @@ export function registerCommands(plugin: any) {
   plugin.addCommand({
     id: "insert-mood",
     name: "Insert Mood",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "M" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "6" }],
     callback: async () => {
       if (!canRunCommand()) return;
       const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
@@ -300,7 +314,7 @@ export function registerCommands(plugin: any) {
   plugin.addCommand({
     id: "insert-energy-level",
     name: "Insert Energy Level",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "E" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "5" }],
     callback: async () => {
       if (!canRunCommand()) return;
       const energySlider = new EnergySlider();
@@ -326,7 +340,7 @@ export function registerCommands(plugin: any) {
   plugin.addCommand({
     id: "insert-mood-and-energy",
     name: "Insert Mood and Energy Level",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "B" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "7" }],
     callback: () => {
       if (!canRunCommand()) return;
       showMoodAndEnergyModal(plugin);

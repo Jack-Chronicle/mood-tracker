@@ -1,5 +1,11 @@
+// types/index.ts
+// Type definitions, settings, utilities, and modal management for the Mood & Energy Obsidian plugin.
+
 import { PluginSettingTab, Setting, TFile, normalizePath, App, SuggestModal, TextComponent } from "obsidian";
 
+/**
+ * Interface for plugin settings.
+ */
 export interface MoodEnergyPluginSettings {
   moodsFilePath: string;
   energyDisplay: "text" | "percent" | "bar";
@@ -11,6 +17,9 @@ export interface MoodEnergyPluginSettings {
   moodAndEnergyFormat: string;
 }
 
+/**
+ * Default settings for the plugin.
+ */
 export const DEFAULT_SETTINGS: MoodEnergyPluginSettings = {
   moodsFilePath: "moods.txt",
   energyDisplay: "bar",
@@ -22,7 +31,13 @@ export const DEFAULT_SETTINGS: MoodEnergyPluginSettings = {
   moodAndEnergyFormat: "{mood} | {energy}"
 };
 
-// Helper to format a progress bar using icon list and icon count
+/**
+ * Formats a progress bar using a string of icons and a value.
+ * @param barIcons - String of icons from full to empty.
+ * @param value - Value from 0 to 100.
+ * @param iconCount - Number of icons to display.
+ * @returns The formatted bar string.
+ */
 export function formatBarIcons(barIcons: string, value: number, iconCount: number): string {
   if (!barIcons || barIcons.length < 2 || iconCount < 1) return value.toString();
   const levels = barIcons.length;
@@ -42,7 +57,15 @@ export function formatBarIcons(barIcons: string, value: number, iconCount: numbe
 }
 
 // --- Modal Management Utility ---
+/**
+ * Tracks the currently open modal (if any).
+ */
 export let currentOpenModal: HTMLElement | null = null;
+
+/**
+ * Opens a modal, ensuring only one is open at a time.
+ * @param modalEl - The modal element to open.
+ */
 export function openModal(modalEl: HTMLElement) {
   if (currentOpenModal && currentOpenModal !== modalEl) {
     currentOpenModal.remove();
@@ -50,6 +73,11 @@ export function openModal(modalEl: HTMLElement) {
   currentOpenModal = modalEl;
   document.body.appendChild(modalEl);
 }
+
+/**
+ * Closes a modal and clears the currentOpenModal reference.
+ * @param modalEl - The modal element to close.
+ */
 export function closeModal(modalEl: HTMLElement) {
   if (currentOpenModal === modalEl) {
     modalEl.remove();
@@ -59,6 +87,9 @@ export function closeModal(modalEl: HTMLElement) {
   }
 }
 
+/**
+ * Modal for suggesting file paths for moods file setting.
+ */
 export class MoodFileSuggestModal extends SuggestModal<string> {
   plugin: any;
   constructor(app: App, plugin: any) {
@@ -81,6 +112,9 @@ export class MoodFileSuggestModal extends SuggestModal<string> {
   }
 }
 
+/**
+ * Inline file path suggester for settings tab.
+ */
 export class FilePathSuggester {
   constructor(inputEl: HTMLInputElement, app: App) {
     let lastSuggestions: string[] = [];
@@ -197,6 +231,9 @@ export class FilePathSuggester {
   }
 }
 
+/**
+ * Settings tab for the plugin.
+ */
 export class MoodEnergySettingTab extends PluginSettingTab {
   plugin: any;
   constructor(app: any, plugin: any) {
@@ -307,6 +344,12 @@ export class MoodEnergySettingTab extends PluginSettingTab {
   }
 }
 
+/**
+ * Loads moods from a file in the vault, skipping frontmatter if present.
+ * @param vault - The Obsidian vault instance.
+ * @param filePath - Path to the moods file.
+ * @returns Array of mood strings.
+ */
 export async function loadMoodsFromFile(vault: any, filePath: string): Promise<string[]> {
   try {
     const file = vault.getAbstractFileByPath(normalizePath(filePath));

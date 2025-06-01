@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Jack Chronicle",
   "description": "A plugin for Obsidian to quickly insert mood and energy level values.",
-  "main": "src/main.ts",
+  "main": "main.js",
   "minAppVersion": "0.12.0",
   "scripts": {
     "build": "tsc",

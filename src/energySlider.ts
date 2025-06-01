@@ -1,15 +1,27 @@
+// energySlider.ts
+// Energy slider modal logic for the Mood & Energy Obsidian plugin.
+
 import { formatBarIcons, openModal, closeModal } from "./types";
 
+/**
+ * Modal for selecting an energy level using a slider.
+ */
 export class EnergySlider {
   resolveFn: ((value: number | null) => void) | null = null;
   selectedValue: number = 50;
   modalElement!: HTMLDivElement;
   sliderElement!: HTMLInputElement;
 
+  /**
+   * Initializes the modal and slider elements.
+   */
   constructor() {
     this.createModal();
   }
 
+  /**
+   * Creates the modal DOM structure and event handlers.
+   */
   createModal() {
     this.modalElement = document.createElement("div");
     this.modalElement.className = "energy-slider-modal";
@@ -17,27 +29,28 @@ export class EnergySlider {
     this.modalElement.style.top = "50%";
     this.modalElement.style.left = "50%";
     this.modalElement.style.transform = "translate(-50%, -50%)";
-    this.modalElement.style.background = "var(--background-secondary, #222)";
+    this.modalElement.style.background = "var(--background-secondary)";
     this.modalElement.style.padding = "24px";
-    this.modalElement.style.borderRadius = "12px";
+    this.modalElement.style.borderRadius = "var(--radius-m)";
     this.modalElement.style.zIndex = "9999";
     this.modalElement.style.display = "flex";
     this.modalElement.style.flexDirection = "column";
     this.modalElement.style.alignItems = "center";
-    this.modalElement.style.boxShadow = "0 4px 32px var(--shadow-s, rgba(0,0,0,0.3))";
+    this.modalElement.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
     this.modalElement.style.maxHeight = "80vh";
     this.modalElement.style.overflow = "auto";
     this.modalElement.style.minWidth = "340px";
     this.modalElement.style.width = "min(420px, 98vw)";
+    this.modalElement.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
     this.modalElement.innerHTML = `
             <div class="slider-container" style="display:flex;flex-direction:column;align-items:center;">
                 <input type="range" min="0" max="100" value="50" class="slider" id="energySlider" style="width:200px;">
-                <div class="slider-value" id="sliderValue" style="margin-top:8px;color:var(--text-normal, #fff);">50</div>
-                <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal, #fff);font-family:monospace;font-size:1.2em;"></div>
+                <div class="slider-value" id="sliderValue" style="margin-top:8px;color:var(--text-normal);">50</div>
+                <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal);font-family:monospace;font-size:1.2em;"></div>
             </div>
-            <div style="display:flex;gap:12px;margin-top:18px;">
-                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
-                <button id="cancelButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--color-red, #a33);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Cancel</button>
+            <div style="display:flex;gap:12px;margin-top:18px;justify-content:center;width:100%;">
+                <button id="okayButton" class="mod-cta" style="padding:var(--size-4-2) var(--size-4-4);border-radius:var(--radius-s);border:var(--input-border-width) solid var(--background-modifier-border);background:var(--interactive-accent);color:var(--text-on-accent);font-weight:bold;cursor:pointer;">Okay</button>
+                <button id="cancelButton" class="mod-cta" style="padding:var(--size-4-2) var(--size-4-4);border-radius:var(--radius-s);border:var(--input-border-width) solid var(--background-modifier-border);background:var(--background-modifier-hover);color:var(--color-red);font-weight:bold;cursor:pointer;">Cancel</button>
             </div>
         `;
     this.sliderElement = this.modalElement.querySelector("#energySlider")!;
@@ -91,6 +104,9 @@ export class EnergySlider {
     window.addEventListener("keydown", escListener);
   }
 
+  /**
+   * Opens the modal and returns a promise resolving to the selected value or null.
+   */
   open(): Promise<number | null> {
     openModal(this.modalElement);
     return new Promise((resolve) => {
@@ -98,6 +114,9 @@ export class EnergySlider {
     });
   }
 
+  /**
+   * Closes the modal and cleans up.
+   */
   closeModal() {
     closeModal(this.modalElement);
   }

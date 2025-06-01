@@ -269,11 +269,18 @@ var import_obsidian2 = require("obsidian");
 
 // src/moodMenu.ts
 var MoodMenu = class {
+  /**
+   * @param moods - List of available moods.
+   */
   constructor(moods) {
     this.selectedMood = null;
     this.resolveFn = null;
     this.moods = moods;
   }
+  /**
+   * Displays the mood selection menu.
+   * @param widthOverride - Optional width override for the menu.
+   */
   displayMenu(widthOverride) {
     const menu = document.createElement("div");
     menu.className = "mood-menu";
@@ -281,19 +288,20 @@ var MoodMenu = class {
     menu.style.top = "50%";
     menu.style.left = "50%";
     menu.style.transform = "translate(-50%, -50%)";
-    menu.style.background = "var(--background-secondary, #222)";
+    menu.style.background = "var(--background-secondary)";
     menu.style.padding = "24px";
-    menu.style.borderRadius = "12px";
+    menu.style.borderRadius = "var(--radius-m)";
     menu.style.zIndex = "9999";
     menu.style.display = "flex";
     menu.style.flexDirection = "column";
     menu.style.alignItems = "center";
-    menu.style.boxShadow = "0 4px 32px var(--shadow-s, rgba(0,0,0,0.3))";
+    menu.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
     menu.style.maxHeight = "80vh";
     menu.style.overflow = "auto";
     menu.style.width = widthOverride || "min(700px, 90vw)";
     menu.style.minWidth = "340px";
     menu.style.maxWidth = "98vw";
+    menu.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
     const sectionGrid = document.createElement("div");
     sectionGrid.style.display = "grid";
     sectionGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(220px, 1fr))";
@@ -308,13 +316,14 @@ var MoodMenu = class {
     sectionDetail.style.marginBottom = "18px";
     const backButton = document.createElement("button");
     backButton.innerText = "\u2190 Back";
+    backButton.className = "mod-cta";
     backButton.style.marginBottom = "12px";
     backButton.style.alignSelf = "flex-start";
-    backButton.style.padding = "6px 16px";
-    backButton.style.borderRadius = "8px";
-    backButton.style.border = "none";
-    backButton.style.background = "var(--background-modifier-hover, #444)";
-    backButton.style.color = "var(--text-normal, #fff)";
+    backButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+    backButton.style.borderRadius = "var(--radius-s)";
+    backButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+    backButton.style.background = "var(--background-modifier-hover)";
+    backButton.style.color = "var(--text-normal)";
     backButton.style.fontWeight = "bold";
     backButton.style.cursor = "pointer";
     backButton.onclick = () => {
@@ -349,20 +358,20 @@ var MoodMenu = class {
       sectionCell.style.display = "flex";
       sectionCell.style.flexDirection = "column";
       sectionCell.style.alignItems = "center";
-      sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
-      sectionCell.style.borderRadius = "8px";
+      sectionCell.style.background = "var(--background-modifier-hover)";
+      sectionCell.style.borderRadius = "var(--radius-m)";
       sectionCell.style.padding = "18px 6px 18px 6px";
       sectionCell.style.boxSizing = "border-box";
       sectionCell.style.minWidth = "0";
       sectionCell.style.cursor = "pointer";
       sectionCell.style.transition = "background 0.2s";
-      sectionCell.onmouseenter = () => sectionCell.style.background = "var(--background-modifier-active-hover, rgba(80,120,255,0.08))";
-      sectionCell.onmouseleave = () => sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
+      sectionCell.onmouseenter = () => sectionCell.style.background = "var(--background-modifier-active-hover)";
+      sectionCell.onmouseleave = () => sectionCell.style.background = "var(--background-modifier-hover)";
       const sectionLabel = document.createElement("div");
       sectionLabel.innerText = section.header;
       sectionLabel.style.fontWeight = "bold";
       sectionLabel.style.fontSize = "1.2rem";
-      sectionLabel.style.color = "var(--text-accent, #aaf)";
+      sectionLabel.style.color = "var(--text-accent)";
       sectionCell.appendChild(sectionLabel);
       sectionCell.onclick = () => {
         sectionGrid.style.display = "none";
@@ -378,15 +387,16 @@ var MoodMenu = class {
         section.moods.forEach((mood) => {
           const moodButton = document.createElement("button");
           moodButton.innerText = mood;
-          moodButton.style.padding = "10px 18px";
-          moodButton.style.borderRadius = "8px";
-          moodButton.style.border = "none";
-          moodButton.style.background = "var(--background-modifier-hover, #444)";
-          moodButton.style.color = "var(--text-normal, #fff)";
+          moodButton.className = "mod-cta";
+          moodButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+          moodButton.style.borderRadius = "var(--radius-s)";
+          moodButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+          moodButton.style.background = "var(--background-modifier-hover)";
+          moodButton.style.color = "var(--text-normal)";
           moodButton.style.fontSize = "1rem";
           moodButton.style.cursor = "pointer";
-          moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover, #666)";
-          moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover, #444)";
+          moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover)";
+          moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover)";
           moodButton.onclick = () => {
             this.selectMood(mood);
             Array.from(moodsGrid.querySelectorAll("button")).forEach((btn) => btn.classList.remove("selected-mood"));
@@ -407,29 +417,31 @@ var MoodMenu = class {
     buttonRow.style.marginTop = "10px";
     const okayButton = document.createElement("button");
     okayButton.innerText = "Okay";
-    okayButton.style.padding = "8px 18px";
-    okayButton.style.borderRadius = "8px";
-    okayButton.style.border = "none";
-    okayButton.style.background = "var(--interactive-accent, #3a7)";
-    okayButton.style.color = "var(--text-on-accent, #fff)";
+    okayButton.className = "mod-cta";
+    okayButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+    okayButton.style.borderRadius = "var(--radius-s)";
+    okayButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+    okayButton.style.background = "var(--interactive-accent)";
+    okayButton.style.color = "var(--text-on-accent)";
     okayButton.style.fontWeight = "bold";
     okayButton.style.cursor = "pointer";
     okayButton.onclick = () => this.confirmSelection();
     buttonRow.appendChild(okayButton);
     const cancelButton = document.createElement("button");
     cancelButton.innerText = "Cancel";
-    cancelButton.style.padding = "8px 18px";
-    cancelButton.style.borderRadius = "8px";
-    cancelButton.style.border = "none";
-    cancelButton.style.background = "var(--color-red, #a33)";
-    cancelButton.style.color = "var(--text-on-accent, #fff)";
+    cancelButton.className = "mod-cta";
+    cancelButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+    cancelButton.style.borderRadius = "var(--radius-s)";
+    cancelButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+    cancelButton.style.background = "var(--background-modifier-hover)";
+    cancelButton.style.color = "var(--color-red)";
     cancelButton.style.fontWeight = "bold";
     cancelButton.style.cursor = "pointer";
     cancelButton.onclick = () => this.cancelSelection();
     buttonRow.appendChild(cancelButton);
     menu.appendChild(buttonRow);
     const style = document.createElement("style");
-    style.innerText = `.selected-mood { background: var(--interactive-accent, #3a7) !important; color: var(--text-on-accent, #fff) !important; border: 2px solid var(--background-primary, #fff) !important; }`;
+    style.innerText = `.selected-mood { background: var(--interactive-accent) !important; color: var(--text-on-accent) !important; border: var(--input-border-width) solid var(--background-primary) !important; }`;
     menu.appendChild(style);
     const escListener = (e) => {
       if (e.key === "Escape") {
@@ -446,25 +458,41 @@ var MoodMenu = class {
     window.addEventListener("keydown", escListener);
     document.body.appendChild(menu);
   }
+  /**
+   * Opens the modal and returns a promise resolving to the selected mood or null.
+   */
   open() {
     this.displayMenu();
     return new Promise((resolve) => {
       this.resolveFn = resolve;
     });
   }
+  /**
+   * Selects a mood.
+   * @param mood - The mood to select.
+   */
   selectMood(mood) {
     this.selectedMood = mood;
   }
+  /**
+   * Confirms the current selection and closes the modal.
+   */
   confirmSelection() {
     if (this.resolveFn)
       this.resolveFn(this.selectedMood);
     this.closeMenu();
   }
+  /**
+   * Cancels the selection and closes the modal.
+   */
   cancelSelection() {
     if (this.resolveFn)
       this.resolveFn(null);
     this.closeMenu();
   }
+  /**
+   * Closes the modal and cleans up.
+   */
   closeMenu() {
     const menu = document.querySelector(".mood-menu");
     if (menu) {
@@ -475,11 +503,17 @@ var MoodMenu = class {
 
 // src/energySlider.ts
 var EnergySlider = class {
+  /**
+   * Initializes the modal and slider elements.
+   */
   constructor() {
     this.resolveFn = null;
     this.selectedValue = 50;
     this.createModal();
   }
+  /**
+   * Creates the modal DOM structure and event handlers.
+   */
   createModal() {
     this.modalElement = document.createElement("div");
     this.modalElement.className = "energy-slider-modal";
@@ -487,27 +521,28 @@ var EnergySlider = class {
     this.modalElement.style.top = "50%";
     this.modalElement.style.left = "50%";
     this.modalElement.style.transform = "translate(-50%, -50%)";
-    this.modalElement.style.background = "var(--background-secondary, #222)";
+    this.modalElement.style.background = "var(--background-secondary)";
     this.modalElement.style.padding = "24px";
-    this.modalElement.style.borderRadius = "12px";
+    this.modalElement.style.borderRadius = "var(--radius-m)";
     this.modalElement.style.zIndex = "9999";
     this.modalElement.style.display = "flex";
     this.modalElement.style.flexDirection = "column";
     this.modalElement.style.alignItems = "center";
-    this.modalElement.style.boxShadow = "0 4px 32px var(--shadow-s, rgba(0,0,0,0.3))";
+    this.modalElement.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
     this.modalElement.style.maxHeight = "80vh";
     this.modalElement.style.overflow = "auto";
     this.modalElement.style.minWidth = "340px";
     this.modalElement.style.width = "min(420px, 98vw)";
+    this.modalElement.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
     this.modalElement.innerHTML = `
             <div class="slider-container" style="display:flex;flex-direction:column;align-items:center;">
                 <input type="range" min="0" max="100" value="50" class="slider" id="energySlider" style="width:200px;">
-                <div class="slider-value" id="sliderValue" style="margin-top:8px;color:var(--text-normal, #fff);">50</div>
-                <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal, #fff);font-family:monospace;font-size:1.2em;"></div>
+                <div class="slider-value" id="sliderValue" style="margin-top:8px;color:var(--text-normal);">50</div>
+                <div class="energy-preview" id="energyPreview" style="margin-top:8px;color:var(--text-normal);font-family:monospace;font-size:1.2em;"></div>
             </div>
-            <div style="display:flex;gap:12px;margin-top:18px;">
-                <button id="okayButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--interactive-accent, #3a);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Okay</button>
-                <button id="cancelButton" style="padding:8px 18px;border-radius:8px;border:none;background:var(--color-red, #a33);color:var(--text-on-accent, #fff);font-weight:bold;cursor:pointer;">Cancel</button>
+            <div style="display:flex;gap:12px;margin-top:18px;justify-content:center;width:100%;">
+                <button id="okayButton" class="mod-cta" style="padding:var(--size-4-2) var(--size-4-4);border-radius:var(--radius-s);border:var(--input-border-width) solid var(--background-modifier-border);background:var(--interactive-accent);color:var(--text-on-accent);font-weight:bold;cursor:pointer;">Okay</button>
+                <button id="cancelButton" class="mod-cta" style="padding:var(--size-4-2) var(--size-4-4);border-radius:var(--radius-s);border:var(--input-border-width) solid var(--background-modifier-border);background:var(--background-modifier-hover);color:var(--color-red);font-weight:bold;cursor:pointer;">Cancel</button>
             </div>
         `;
     this.sliderElement = this.modalElement.querySelector("#energySlider");
@@ -560,12 +595,18 @@ var EnergySlider = class {
     };
     window.addEventListener("keydown", escListener);
   }
+  /**
+   * Opens the modal and returns a promise resolving to the selected value or null.
+   */
   open() {
     openModal(this.modalElement);
     return new Promise((resolve) => {
       this.resolveFn = resolve;
     });
   }
+  /**
+   * Closes the modal and cleans up.
+   */
   closeModal() {
     closeModal(this.modalElement);
   }
@@ -579,19 +620,20 @@ function showMoodAndEnergyModal(plugin) {
   modal.style.top = "50%";
   modal.style.left = "50%";
   modal.style.transform = "translate(-50%, -50%)";
-  modal.style.background = "var(--background-secondary, #222)";
+  modal.style.background = "var(--background-secondary)";
   modal.style.padding = "24px";
-  modal.style.borderRadius = "12px";
+  modal.style.borderRadius = "var(--radius-m)";
   modal.style.zIndex = "9999";
   modal.style.display = "flex";
   modal.style.flexDirection = "row";
   modal.style.alignItems = "stretch";
-  modal.style.boxShadow = "0 4px 32px var(--shadow-s, rgba(0,0,0,0.3))";
+  modal.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
   modal.style.maxHeight = "80vh";
   modal.style.overflow = "visible";
   modal.style.width = "min(900px, 98vw)";
   modal.style.minWidth = "340px";
   modal.style.maxWidth = "98vw";
+  modal.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
   const moodContainer = document.createElement("div");
   moodContainer.style.flex = "1 1 0";
   moodContainer.style.overflowY = "auto";
@@ -611,8 +653,8 @@ function showMoodAndEnergyModal(plugin) {
   controlsContainer.style.width = "320px";
   controlsContainer.style.minWidth = "220px";
   controlsContainer.style.maxWidth = "340px";
-  controlsContainer.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
-  controlsContainer.style.borderRadius = "8px";
+  controlsContainer.style.background = "var(--background-modifier-hover)";
+  controlsContainer.style.borderRadius = "var(--radius-m)";
   controlsContainer.style.padding = "18px 18px 18px 18px";
   controlsContainer.style.boxSizing = "border-box";
   controlsContainer.style.height = "100%";
@@ -665,20 +707,22 @@ function showMoodAndEnergyModal(plugin) {
   buttonRow.style.width = "100%";
   const okayButton = document.createElement("button");
   okayButton.innerText = "Okay";
-  okayButton.style.padding = "8px 18px";
-  okayButton.style.borderRadius = "8px";
-  okayButton.style.border = "none";
-  okayButton.style.background = "var(--interactive-accent, #3a7)";
-  okayButton.style.color = "var(--text-on-accent, #fff)";
+  okayButton.className = "mod-cta";
+  okayButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+  okayButton.style.borderRadius = "var(--radius-s)";
+  okayButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+  okayButton.style.background = "var(--interactive-accent)";
+  okayButton.style.color = "var(--text-on-accent)";
   okayButton.style.fontWeight = "bold";
   okayButton.style.cursor = "pointer";
   const cancelButton = document.createElement("button");
   cancelButton.innerText = "Cancel";
-  cancelButton.style.padding = "8px 18px";
-  cancelButton.style.borderRadius = "8px";
-  cancelButton.style.border = "none";
-  cancelButton.style.background = "var(--color-red, #a33)";
-  cancelButton.style.color = "var(--text-on-accent, #fff)";
+  cancelButton.className = "mod-cta";
+  cancelButton.style.padding = "var(--size-4-2) var(--size-4-4)";
+  cancelButton.style.borderRadius = "var(--radius-s)";
+  cancelButton.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+  cancelButton.style.background = "var(--background-modifier-hover)";
+  cancelButton.style.color = "var(--color-red)";
   cancelButton.style.fontWeight = "bold";
   cancelButton.style.cursor = "pointer";
   buttonRow.appendChild(okayButton);
@@ -798,7 +842,7 @@ function showMoodAndEnergyModal(plugin) {
   moodContainer.appendChild(moodSectionGrid);
   moodContainer.appendChild(moodSectionDetail);
   const style = document.createElement("style");
-  style.innerText = `.selected-mood { background: var(--interactive-accent, #3a7) !important; color: var(--text-on-accent, #fff) !important; border: 2px solid var(--background-primary, #fff) !important; }`;
+  style.innerText = `.selected-mood { background: var(--interactive-accent) !important; color: var(--text-on-accent) !important; border: var(--input-border-width) solid var(--background-primary) !important; }`;
   modal.appendChild(style);
   const escListener = (e) => {
     if (e.key === "Escape") {
@@ -847,7 +891,7 @@ function registerCommands(plugin) {
   plugin.addCommand({
     id: "insert-mood",
     name: "Insert Mood",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "M" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "6" }],
     callback: async () => {
       if (!canRunCommand()) return;
       const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
@@ -867,7 +911,7 @@ function registerCommands(plugin) {
   plugin.addCommand({
     id: "insert-energy-level",
     name: "Insert Energy Level",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "E" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "5" }],
     callback: async () => {
       if (!canRunCommand()) return;
       const energySlider = new EnergySlider();
@@ -893,7 +937,7 @@ function registerCommands(plugin) {
   plugin.addCommand({
     id: "insert-mood-and-energy",
     name: "Insert Mood and Energy Level",
-    hotkeys: [{ modifiers: ["Ctrl"], key: "B" }],
+    hotkeys: [{ modifiers: ["Alt"], key: "7" }],
     callback: () => {
       if (!canRunCommand()) return;
       showMoodAndEnergyModal(plugin);
@@ -905,16 +949,26 @@ function registerCommands(plugin) {
 var MoodEnergyPlugin = class extends import_obsidian3.Plugin {
   constructor(app, manifest) {
     super(app, manifest);
+    this.settingTab = null;
     this.settings = DEFAULT_SETTINGS;
   }
+  /**
+   * Loads settings and registers commands on plugin load.
+   */
   async onload() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData?.());
     this.addSettingTab(new MoodEnergySettingTab(this.app, this));
     registerCommands(this);
   }
+  /**
+   * Saves plugin settings to disk.
+   */
   async saveSettings() {
     await this.saveData?.(this.settings);
   }
+  /**
+   * Cleans up on plugin unload.
+   */
   onunload() {
   }
 };
