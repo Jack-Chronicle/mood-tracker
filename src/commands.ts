@@ -300,9 +300,8 @@ export function showMoodAndEnergyModal(plugin: any) {
       const format = settings.moodAndEnergyFormat || "{mood} | {energy}";
       const output = format.replace("{mood}", selectedMood).replace("{energy}", energyStr);
       editor.replaceSelection(output);
-      const cursorPos = editor.getCursor();
-      editor.setCursor({ line: cursorPos.line, ch: cursorPos.ch + output.length });
-      editor.focus && editor.focus();
+      // Do not set the cursor position after replaceSelection to avoid RangeError
+      if (editor.focus) editor.focus();
     }
     document.body.removeChild(modal);
   };
@@ -325,14 +324,8 @@ export function registerCommands(plugin: any) {
         if (editor) {
           const format = plugin.settings.moodOnlyFormat || "{value}";
           const output = format.replace("{value}", selectedMood);
-          const cursorPos = editor.getCursor();
           editor.replaceSelection(output);
-          const newPos = {
-            line: cursorPos.line,
-            ch: cursorPos.ch + output.length
-          };
-          editor.setCursor(newPos);
-          editor.focus && editor.focus();
+          if (editor.focus) editor.focus();
         }
       }
     }
@@ -362,9 +355,7 @@ export function registerCommands(plugin: any) {
               if (bars - fullBars >= 0.75) {
                 output = settings.energyOnlyFormat.replace("{value}", settings.barFull.repeat(fullBars + 1) + settings.barEmpty.repeat(totalBars - fullBars - 1));
                 editor.replaceSelection(output);
-                const cursorPos2 = editor.getCursor();
-                editor.setCursor({ line: cursorPos2.line, ch: cursorPos2.ch + output.length });
-                editor.focus && editor.focus();
+                if (editor.focus) editor.focus();
                 return;
               } else if (bars - fullBars >= 0.25) {
                 halfBars = 1;
@@ -379,9 +370,7 @@ export function registerCommands(plugin: any) {
             output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}`);
           }
           editor.replaceSelection(output);
-          const cursorPos = editor.getCursor();
-          editor.setCursor({ line: cursorPos.line, ch: cursorPos.ch + output.length });
-          editor.focus && editor.focus();
+          if (editor.focus) editor.focus();
         }
       }
     }
