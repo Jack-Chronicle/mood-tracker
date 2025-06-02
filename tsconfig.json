@@ -6,10 +6,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./plugin",
     "rootDir": "./src",
     "declaration": false,
-    "sourceMap": false
+    "sourceMap": true
   },
   "include": [
     "src/**/*.ts"
