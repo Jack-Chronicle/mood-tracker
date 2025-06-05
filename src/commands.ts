@@ -1,10 +1,50 @@
 // commands.ts
 // Command registration and modal logic for the Mood & Energy Obsidian plugin.
 
-import { MarkdownView } from "obsidian";
+import { MarkdownView, Editor } from "obsidian";
 import { MoodMenu } from "./moodMenu";
 import { EnergySlider } from "./energySlider";
 import { loadMoodsFromFile, formatBarIcons, openModal, closeModal, currentOpenModal } from "./types";
+
+export async function insertMood(plugin: any) {
+  const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
+  const moodMenu = new MoodMenu(moods);
+  const selectedMood = await moodMenu.open();
+  if (selectedMood) {
+    const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor) {
+      const format = plugin.settings.moodOnlyFormat || "{value}";
+      const output = format.replace("{value}", selectedMood);
+      editor.focus();
+      editor.replaceSelection(output);
+    }
+  }
+}
+
+export async function insertEnergy(plugin: any) {
+  const energySlider = new EnergySlider(plugin);
+  const selectedEnergyLevel = await energySlider.open();
+  if (selectedEnergyLevel !== null) {
+    const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor) {
+      let output = "";
+      const settings = plugin.settings;
+      if (settings.energyDisplay === "percent") {
+        output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}%`);
+      } else if (settings.energyDisplay === "bar") {
+        output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, selectedEnergyLevel, settings.barIconCount));
+      } else {
+        output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}`);
+      }
+      editor.focus();
+      editor.replaceSelection(output);
+    }
+  }
+}
+
+export async function insertMoodAndEnergy(plugin: any) {
+  showMoodAndEnergyModal(plugin);
+}
 
 /**
  * Shows a combined modal for selecting both mood and energy, then inserts the formatted result into the editor.
@@ -196,6 +236,7 @@ export function showMoodAndEnergyModal(plugin: any) {
   moodSectionDetail.appendChild(backButton);
   backButton.style.display = "none";
 
+
   // --- Nested Section/Mood Parsing and Rendering ---
   loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath).then((moodList: string[]) => {
     moods = moodList;
@@ -333,8 +374,8 @@ export function showMoodAndEnergyModal(plugin: any) {
   modal.appendChild(controlsContainer);
   openModal(modal);
   okayButton.onclick = () => {
-    const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor && selectedMood) {
+    const activeEditor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (activeEditor && selectedMood) {
       const settings = plugin.settings;
       let energyStr = "";
       const value = parseInt(slider.value);
@@ -347,8 +388,8 @@ export function showMoodAndEnergyModal(plugin: any) {
       }
       const format = settings.moodAndEnergyFormat || "{mood} | {energy}";
       const output = format.replace("{mood}", selectedMood).replace("{energy}", energyStr);
-      editor.replaceSelection(output);
-      if (editor.focus) editor.focus();
+      if (typeof activeEditor.focus === "function") activeEditor.focus();
+      activeEditor.replaceSelection(output);
     }
     closeModal(modal);
   };

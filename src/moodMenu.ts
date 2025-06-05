@@ -182,6 +182,14 @@ export class MoodMenu {
           moodButton.style.color = "var(--text-normal)";
           moodButton.style.fontSize = "1rem";
           moodButton.style.cursor = "pointer";
+          moodButton.style.whiteSpace = "normal";
+          moodButton.style.overflow = "hidden";
+          moodButton.style.wordBreak = "normal";
+          moodButton.style.textOverflow = "ellipsis"; // Optional
+          moodButton.style.height = "auto";
+          moodButton.style.minHeight = "48px"; // Optional, for accessibility
+          moodButton.style.display = "block";
+          moodButton.style.width = "100%";
           moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover)";
           moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover)";
           moodButton.onclick = () => {
@@ -269,6 +277,14 @@ export class MoodMenu {
             moodButton.style.color = "var(--text-normal)";
             moodButton.style.fontSize = "1rem";
             moodButton.style.cursor = "pointer";
+            moodButton.style.whiteSpace = "normal";
+            moodButton.style.overflow = "hidden";
+            moodButton.style.wordBreak = "normal";
+            moodButton.style.textOverflow = "ellipsis"; // Optional
+            moodButton.style.height = "auto";
+            moodButton.style.minHeight = "48px"; // Optional, for accessibility
+            moodButton.style.display = "block";
+            moodButton.style.width = "100%";
             moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover)";
             moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover)";
             moodButton.onclick = () => {

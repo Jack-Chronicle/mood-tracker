@@ -15,6 +15,9 @@ export interface MoodEnergyPluginSettings {
   energyOnlyFormat: string;
   moodOnlyFormat: string;
   moodAndEnergyFormat: string;
+  showMoodRibbon?: boolean;
+  showEnergyRibbon?: boolean;
+  showCombinedRibbon?: boolean;
 }
 
 /**
@@ -28,7 +31,10 @@ export const DEFAULT_SETTINGS: MoodEnergyPluginSettings = {
   barIconCount: 7,
   energyOnlyFormat: "Energy: {value}",
   moodOnlyFormat: "{value}",
-  moodAndEnergyFormat: "{mood} | {energy}"
+  moodAndEnergyFormat: "{mood} | {energy}",
+  showMoodRibbon: true,
+  showEnergyRibbon: true,
+  showCombinedRibbon: true,
 };
 
 /**
@@ -341,6 +347,39 @@ export class MoodEnergySettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+    new Setting(containerEl)
+      .setName("Show Mood Ribbon Icon")
+      .setDesc("Show a toolbar button for the Mood menu.")
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.showMoodRibbon)
+        // Mood
+        .onChange(async (value) => {
+          this.plugin.settings.showMoodRibbon = value;
+          await this.plugin.saveSettings();
+          this.plugin.reloadRibbonIcons();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show Energy Ribbon Icon")
+      .setDesc("Show a toolbar button for the Energy slider.")
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.showEnergyRibbon)
+        .onChange(async (value) => {
+          this.plugin.settings.showEnergyRibbon = value;
+          await this.plugin.saveSettings();
+          this.plugin.reloadRibbonIcons();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show Combined Ribbon Icon")
+      .setDesc("Show a toolbar button for the combined Mood & Energy modal.")
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.showCombinedRibbon)
+        .onChange(async (value) => {
+          this.plugin.settings.showCombinedRibbon = value;
+          await this.plugin.saveSettings();
+          this.plugin.reloadRibbonIcons();
+        }));
   }
 }
 

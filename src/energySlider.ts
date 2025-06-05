@@ -4,6 +4,14 @@
 import { formatBarIcons, openModal, closeModal } from "./types";
 
 /**
+ * Shows a modal element, ensuring only one is open at a time.
+ * @param modalEl - The modal element to show.
+ */
+export function showModal(modalEl: HTMLElement) {
+  openModal(modalEl);
+}
+
+/**
  * Modal for selecting an energy level using a slider.
  */
 export class EnergySlider {
