@@ -22,15 +22,22 @@ export function showMoodAndEnergyModal(plugin: any) {
   modal.style.borderRadius = "var(--radius-m)";
   modal.style.zIndex = "9999";
   modal.style.display = "flex";
-  modal.style.flexDirection = "row";
+  modal.style.flexDirection = window.innerWidth < 600 ? "column" : "row";
   modal.style.alignItems = "stretch";
   modal.style.boxShadow = "0 4px 32px var(--background-modifier-box-shadow)";
-  modal.style.maxHeight = "80vh";
+  modal.style.maxHeight = window.innerWidth < 600 ? "98vh" : "80vh";
   modal.style.overflow = "visible";
-  modal.style.width = "min(900px, 98vw)";
-  modal.style.minWidth = "340px";
+  modal.style.width = window.innerWidth < 600 ? "98vw" : "min(900px, 98vw)";
+  modal.style.minWidth = window.innerWidth < 600 ? "0" : "340px";
   modal.style.maxWidth = "98vw";
   modal.style.border = "var(--input-border-width) solid var(--background-modifier-border)";
+    if (window.innerWidth < 600) {
+    modal.style.width = "98vw";
+    modal.style.minWidth = "0";
+    modal.style.maxHeight = "98vh";
+    modal.style.padding = "8px";
+    modal.style.margin = "0";
+  }
   const moodContainer = document.createElement("div");
   moodContainer.style.flex = "1 1 0";
   moodContainer.style.overflowY = "auto";
@@ -41,20 +48,32 @@ export function showMoodAndEnergyModal(plugin: any) {
   moodContainer.style.padding = "0 0 0 0";
   moodContainer.style.display = "flex";
   moodContainer.style.flexDirection = "column";
-  moodContainer.style.minWidth = "260px";
+  moodContainer.style.minWidth = window.innerWidth < 600 ? "0" : "260px";
+    if (window.innerWidth < 600) {
+      moodContainer.style.marginRight = "0";
+      moodContainer.style.maxHeight = "none";
+      moodContainer.style.padding = "0";
+      moodContainer.style.width = "100%"; // <-- Use 100% so it fits inside modal padding
+      moodContainer.style.flex = "1 1 auto";
+    }
   const controlsContainer = document.createElement("div");
   controlsContainer.style.display = "flex";
   controlsContainer.style.flexDirection = "column";
   controlsContainer.style.alignItems = "center";
   controlsContainer.style.justifyContent = "flex-start";
-  controlsContainer.style.width = "320px";
-  controlsContainer.style.minWidth = "220px";
-  controlsContainer.style.maxWidth = "340px";
+  controlsContainer.style.width = window.innerWidth < 600 ? "100%" : "320px";
+  controlsContainer.style.minWidth = window.innerWidth < 600 ? "0" : "220px";
+  controlsContainer.style.maxWidth = window.innerWidth < 600 ? "100vw" : "340px";
   controlsContainer.style.background = "var(--background-modifier-hover)";
   controlsContainer.style.borderRadius = "var(--radius-m)";
-  controlsContainer.style.padding = "18px 18px 18px 18px";
+  controlsContainer.style.padding = window.innerWidth < 600 ? "12px" : "18px 18px 18px 18px";
   controlsContainer.style.boxSizing = "border-box";
   controlsContainer.style.height = "100%";
+    if (window.innerWidth < 600) {
+    controlsContainer.style.padding = "12px 6px";
+    controlsContainer.style.minWidth = "0";
+    controlsContainer.style.maxWidth = "100vw";
+  }
   const sliderLabel = document.createElement("div");
   sliderLabel.innerText = "Energy Level:";
   sliderLabel.style.color = "var(--text-normal, #fff)";
@@ -65,6 +84,9 @@ export function showMoodAndEnergyModal(plugin: any) {
   slider.max = "100";
   slider.value = "50";
   slider.style.width = "220px";
+    if (window.innerWidth < 600) {
+    slider.style.width = "90vw";
+  }
   const sliderValue = document.createElement("div");
   sliderValue.innerText = "50";
   sliderValue.style.color = "var(--text-normal, #fff)";
@@ -79,11 +101,11 @@ export function showMoodAndEnergyModal(plugin: any) {
     let output = "";
     const value = parseInt(slider.value);
     if (settings.energyDisplay === "percent") {
-      output = settings.energyFormat.replace("{value}", `${value}%`);
+      output = settings.energyOnlyFormat.replace("{value}", `${value}%`);
     } else if (settings.energyDisplay === "bar") {
-      output = settings.energyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
+      output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, value, settings.barIconCount));
     } else {
-      output = settings.energyFormat.replace("{value}", `${value}`);
+      output = settings.energyOnlyFormat.replace("{value}", `${value}`);
     }
     preview.innerText = output;
   };
@@ -112,6 +134,10 @@ export function showMoodAndEnergyModal(plugin: any) {
   okayButton.style.color = "var(--text-on-accent)";
   okayButton.style.fontWeight = "bold";
   okayButton.style.cursor = "pointer";
+    if (window.innerWidth < 600) {
+    okayButton.style.fontSize = "1.2em";
+    okayButton.style.padding = "18px";
+  }
   const cancelButton = document.createElement("button");
   cancelButton.innerText = "Cancel";
   cancelButton.className = "mod-cta";
@@ -128,11 +154,17 @@ export function showMoodAndEnergyModal(plugin: any) {
   let selectedMood: string | null = null;
   let selectedMoodButton: HTMLButtonElement | null = null;
   let moods: string[] = [];
+    if (window.innerWidth < 600) {
+    cancelButton.style.fontSize = "1.2em";
+    cancelButton.style.padding = "18px";
+  }
   const moodSectionGrid = document.createElement("div");
   moodSectionGrid.style.display = "grid";
   moodSectionGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(180px, 1fr))";
   moodSectionGrid.style.gap = "18px";
   moodSectionGrid.style.width = "100%";
+  moodSectionGrid.style.minHeight = "120px"; // Prevents collapse if empty
+  moodSectionGrid.style.boxSizing = "border-box";
   moodSectionGrid.style.marginBottom = "18px";
   const moodSectionDetail = document.createElement("div");
   moodSectionDetail.style.display = "none";
@@ -142,15 +174,20 @@ export function showMoodAndEnergyModal(plugin: any) {
   moodSectionDetail.style.marginBottom = "18px";
   const backButton = document.createElement("button");
   backButton.innerText = "\u2190 Back";
-  backButton.style.marginBottom = "12px";
-  backButton.style.alignSelf = "flex-start";
-  backButton.style.padding = "6px 16px";
+  backButton.style.margin = "12px 0";
+  backButton.style.padding = window.innerWidth < 600 ? "10px 18px" : "6px 16px";
   backButton.style.borderRadius = "8px";
   backButton.style.border = "none";
   backButton.style.background = "var(--background-modifier-hover, #444)";
   backButton.style.color = "var(--text-normal, #fff)";
   backButton.style.fontWeight = "bold";
-  backButton.style.cursor = "pointer";
+  backButton.style.fontSize = window.innerWidth < 600 ? "1.1em" : "1em";
+  backButton.style.lineHeight = "1.2";
+  backButton.style.height = "auto";
+  backButton.style.display = "block";
+  backButton.style.verticalAlign = "middle";
+  backButton.style.alignSelf = "stretch";
+  backButton.style.textAlign = "left";
   backButton.onclick = () => {
     moodSectionDetail.style.display = "none";
     moodSectionGrid.style.display = "grid";
@@ -158,83 +195,121 @@ export function showMoodAndEnergyModal(plugin: any) {
   };
   moodSectionDetail.appendChild(backButton);
   backButton.style.display = "none";
+
+  // --- Nested Section/Mood Parsing and Rendering ---
   loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath).then((moodList: string[]) => {
     moods = moodList;
-    let i = 0;
-    const sectionData: { header: string, moods: string[] }[] = [];
-    while (i < moods.length) {
-      const mood = moods[i];
-      if (/^#+\s/.test(mood)) {
-        const headerText = mood.replace(/^#+\s*/, "");
-        const moodsArr: string[] = [];
-        i++;
-        while (i < moods.length && !/^#+\s/.test(moods[i])) {
-          moodsArr.push(moods[i].replace(/^[-*]\s*/, ""));
-          i++;
+    // Build a tree structure for nested sections and moods
+    type SectionNode = {
+      name: string;
+      level: number;
+      moods: string[];
+      sections: SectionNode[];
+      parent?: SectionNode;
+    };
+    const root: SectionNode = { name: "__root__", level: 0, moods: [], sections: [] };
+    let currentSection: SectionNode = root;
+    const sectionStack: SectionNode[] = [root];
+    for (let line of moods) {
+      if (/^#+\s/.test(line)) {
+        const match = line.match(/^(#+)\s*(.*)$/);
+        if (!match) continue;
+        const level = match[1].length;
+        const name = match[2].trim();
+        // Find parent section for this level
+        while (sectionStack.length > 0 && sectionStack[sectionStack.length - 1].level >= level) {
+          sectionStack.pop();
         }
-        sectionData.push({ header: headerText, moods: moodsArr });
-      } else if (!/^[-*]\s*/.test(mood)) {
-        sectionData.push({ header: mood, moods: [] });
-        i++;
-      } else {
-        i++;
+        const parent = sectionStack[sectionStack.length - 1];
+        const newSection: SectionNode = { name, level, moods: [], sections: [], parent };
+        parent.sections.push(newSection);
+        sectionStack.push(newSection);
+        currentSection = newSection;
+      } else if (line.trim().length > 0) {
+        currentSection.moods.push(line.replace(/^[-*]\s*/, ""));
       }
     }
-    sectionData.forEach((section) => {
-      const sectionCell = document.createElement("div");
-      sectionCell.style.display = "flex";
-      sectionCell.style.flexDirection = "column";
-      sectionCell.style.alignItems = "center";
-      sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
-      sectionCell.style.borderRadius = "8px";
-      sectionCell.style.padding = "18px 6px 18px 6px";
-      sectionCell.style.boxSizing = "border-box";
-      sectionCell.style.minWidth = "0";
-      sectionCell.style.cursor = "pointer";
-      sectionCell.style.transition = "background 0.2s";
-      sectionCell.onmouseenter = () => sectionCell.style.background = "var(--background-modifier-active-hover, rgba(80,120,255,0.08))";
-      sectionCell.onmouseleave = () => sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
-      const sectionLabel = document.createElement("div");
-      sectionLabel.innerText = section.header;
-      sectionLabel.style.fontWeight = "bold";
-      sectionLabel.style.fontSize = "1.2rem";
-      sectionLabel.style.color = "var(--text-accent, #aaf)";
-      sectionCell.appendChild(sectionLabel);
-      sectionCell.onclick = () => {
-        moodSectionGrid.style.display = "none";
-        moodSectionDetail.style.display = "flex";
-        backButton.style.display = "block";
-        while (moodSectionDetail.childNodes.length > 1)
-          moodSectionDetail.removeChild(moodSectionDetail.lastChild!);
-        const moodsGrid = document.createElement("div");
-        moodsGrid.style.display = "grid";
-        moodsGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(100px, 1fr))";
-        moodsGrid.style.gap = "12px";
-        moodsGrid.style.width = "100%";
-        section.moods.forEach((mood) => {
-          const moodButton = document.createElement("button");
-          moodButton.innerText = mood;
-          moodButton.style.padding = "10px 18px";
-          moodButton.style.borderRadius = "8px";
-          moodButton.style.border = "none";
-          moodButton.style.background = "var(--background-modifier-hover, #444)";
-          moodButton.style.color = "var(--text-normal, #fff)";
-          moodButton.style.fontSize = "1rem";
-          moodButton.style.cursor = "pointer";
-          moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover, #666)";
-          moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover, #444)";
-          moodButton.onclick = () => {
-            selectedMood = mood;
-            Array.from(moodsGrid.querySelectorAll("button")).forEach((btn) => btn.classList.remove("selected-mood"));
-            moodButton.classList.add("selected-mood");
-            selectedMoodButton = moodButton;
-          };
-          moodsGrid.appendChild(moodButton);
-        });
-        moodSectionDetail.appendChild(moodsGrid);
-      };
-      moodSectionGrid.appendChild(sectionCell);
-    });
+    // Helper to render a section's contents in the modal
+    function renderSection(section: SectionNode, container: HTMLElement, detailContainer: HTMLElement, parentPath: string[] = []) {
+      // Clear container
+      container.innerHTML = "";
+    
+      // --- Sort sections and moods alphabetically ---
+      const sortedSections = [...section.sections].sort((a, b) => a.name.localeCompare(b.name));
+      const sortedMoods = [...section.moods].sort((a, b) => a.localeCompare(b));
+    
+      // --- Render sections first ---
+      sortedSections.forEach(childSection => {
+        const sectionCell = document.createElement("div");
+        sectionCell.style.display = "flex";
+        sectionCell.style.flexDirection = "column";
+        sectionCell.style.alignItems = "center";
+        sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
+        sectionCell.style.borderRadius = "8px";
+        sectionCell.style.padding = "18px 6px 18px 6px";
+        sectionCell.style.boxSizing = "border-box";
+        sectionCell.style.minWidth = "0";
+        sectionCell.style.cursor = "pointer";
+        sectionCell.style.transition = "background 0.2s";
+        sectionCell.onmouseenter = () => sectionCell.style.background = "var(--background-modifier-active-hover, rgba(80,120,255,0.08))";
+        sectionCell.onmouseleave = () => sectionCell.style.background = "var(--background-modifier-hover, rgba(255,255,255,0.02))";
+        const sectionLabel = document.createElement("div");
+        sectionLabel.innerText = childSection.name;
+        sectionLabel.style.fontWeight = "bold";
+        sectionLabel.style.fontSize = "1.2rem";
+        sectionLabel.style.color = "var(--text-accent, #aaf)";
+        sectionCell.appendChild(sectionLabel);
+        sectionCell.onclick = () => {
+          container.style.display = "none";
+          detailContainer.style.display = "flex";
+          backButton.style.display = "block";
+          while (detailContainer.childNodes.length > 1)
+            detailContainer.removeChild(detailContainer.lastChild!);
+          const moodsGrid = document.createElement("div");
+          moodsGrid.style.display = "grid";
+          moodsGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(100px, 1fr))";
+          moodsGrid.style.gap = "12px";
+          moodsGrid.style.width = "100%";
+          renderSection(childSection, moodsGrid, detailContainer, [...parentPath, childSection.name]);
+          detailContainer.appendChild(moodsGrid);
+        };
+        container.appendChild(sectionCell);
+      });
+    
+      // --- Add a separator if there are both sections and moods ---
+      if (sortedSections.length > 0 && sortedMoods.length > 0) {
+        const divider = document.createElement("div");
+        divider.style.gridColumn = "1 / -1";
+        divider.style.height = "1px";
+        divider.style.background = "var(--background-modifier-border)";
+        divider.style.margin = "12px 0";
+        container.appendChild(divider);
+      }
+    
+      // --- Render moods below sections ---
+      sortedMoods.forEach(mood => {
+        const moodButton = document.createElement("button");
+        moodButton.innerText = mood;
+        moodButton.style.padding = "10px 18px";
+        moodButton.style.borderRadius = "8px";
+        moodButton.style.border = "none";
+        moodButton.style.background = "var(--background-modifier-hover, #444)";
+        moodButton.style.color = "var(--text-normal, #fff)";
+        moodButton.style.fontSize = "1rem";
+        moodButton.style.cursor = "pointer";
+        moodButton.onmouseenter = () => moodButton.style.background = "var(--background-modifier-active-hover, #666)";
+        moodButton.onmouseleave = () => moodButton.style.background = "var(--background-modifier-hover, #444)";
+        moodButton.onclick = () => {
+          selectedMood = mood;
+          Array.from(container.querySelectorAll("button")).forEach((btn) => btn.classList.remove("selected-mood"));
+          moodButton.classList.add("selected-mood");
+          selectedMoodButton = moodButton;
+        };
+        container.appendChild(moodButton);
+      });
+    }
+    // Initial modal: show root's moods and all sections with parent=root (top-level headings)
+    renderSection(root, moodSectionGrid, moodSectionDetail);
   });
   moodContainer.appendChild(moodSectionGrid);
   moodContainer.appendChild(moodSectionDetail);
@@ -317,7 +392,7 @@ export function registerCommands(plugin: any) {
     hotkeys: [{ modifiers: ["Alt"], key: "5" }],
     callback: async () => {
       if (!canRunCommand()) return;
-      const energySlider = new EnergySlider();
+      const energySlider = new EnergySlider(plugin);
       const selectedEnergyLevel = await energySlider.open();
       if (selectedEnergyLevel !== null) {
         const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;

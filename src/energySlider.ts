@@ -7,6 +7,7 @@ import { formatBarIcons, openModal, closeModal } from "./types";
  * Modal for selecting an energy level using a slider.
  */
 export class EnergySlider {
+  plugin: any; // Reference to the plugin instance, if needed
   resolveFn: ((value: number | null) => void) | null = null;
   selectedValue: number = 50;
   modalElement!: HTMLDivElement;
@@ -15,7 +16,8 @@ export class EnergySlider {
   /**
    * Initializes the modal and slider elements.
    */
-  constructor() {
+  constructor(plugin: any) {
+    this.plugin = plugin; // Store the plugin instance if needed
     this.createModal();
   }
 
@@ -59,7 +61,7 @@ export class EnergySlider {
     const okayButton = this.modalElement.querySelector("#okayButton")!;
     const cancelButton = this.modalElement.querySelector("#cancelButton")!;
     const updatePreview = () => {
-      const settings = (window as any).app?.plugins?.plugins?.["obsidian-mood-energy-plugin"]?.settings || {
+      const settings = this.plugin?.settings || {
         energyDisplay: "bar",
         energyFormat: "Energy: {value}",
         barIcons: "⣿⣷⣶⣦⣤⣄⣀",
