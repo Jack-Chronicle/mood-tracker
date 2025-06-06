@@ -1,7 +1,7 @@
 {
   "id": "mood-and-energy",
   "name": "Mood & Energy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Jack Chronicle",
   "description": "A plugin for Obsidian to quickly insert mood and energy level values.",
   "main": "main.js",
