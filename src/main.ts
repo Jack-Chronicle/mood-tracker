@@ -2,13 +2,12 @@
 // Main plugin entry point for the Mood & Energy Obsidian plugin.
 
 import { Plugin, Editor, MarkdownView } from "obsidian";
-import { MoodEnergyPluginSettings, DEFAULT_SETTINGS, MoodEnergySettingTab } from "./types";
-import { registerCommands } from "./commands";
-import { MoodMenu } from "./moodMenu";
-import { EnergySlider } from "./energySlider";
-import { showMoodAndEnergyModal } from "./commands";
-import { loadMoodsFromFile } from "./types"; // Add this import at the top
-import { insertMood, insertEnergy, insertMoodAndEnergy } from "./commands";
+import { MoodEnergyPluginSettings, DEFAULT_SETTINGS } from "./types";
+import { MoodEnergySettingTab } from "./settings";
+import { registerCommands, insertMood, insertEnergy, insertMoodAndEnergy } from "./commands";
+import { showMoodAndEnergyModal } from "./modals/MoodEnergyModal";
+import { MoodMenu, EnergySlider } from "./modals";
+import { loadMoodsFromFile } from "./utils";
 
 /**
  * Main plugin class for Mood & Energy tracking in Obsidian.
