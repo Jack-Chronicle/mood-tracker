@@ -1,6 +1,6 @@
 {
   "name": "mood-and-energy",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A plugin to quickly insert mood and energy level values.",
   "author": "Jack Chronicle",
   "type": "module",
