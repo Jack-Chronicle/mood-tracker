@@ -1,5 +1,5 @@
 {
-  "name": "mood-energy-plugin",
+  "name": "mood-and-energy",
   "version": "1.0.2",
   "description": "A plugin for Obsidian to quickly insert mood and energy level values.",
   "main": "./main.js",
