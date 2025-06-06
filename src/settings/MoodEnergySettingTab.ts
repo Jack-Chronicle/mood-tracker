@@ -4,6 +4,23 @@ import { FilePathSuggester } from "./FilePathSuggester";
 import { MoodEnergyPluginSettings } from "../types";
 
 export async function loadMoodsFromFile(vault: any, filePath: string): Promise<string[]> {
+  const DEFAULT_MOODS = [
+    "Happy",
+    "Sad",
+    "Angry",
+    "Excited",
+    "Calm",
+    "Anxious",
+    "Tired",
+    "Motivated",
+    "Bored",
+    "Grateful",
+    "Stressed",
+    "Content",
+    "Confident",
+    "Lonely",
+    "Hopeful"
+  ];
   try {
     const file = vault.getAbstractFileByPath(normalizePath(filePath));
     if (file instanceof TFile) {
@@ -21,7 +38,7 @@ export async function loadMoodsFromFile(vault: any, filePath: string): Promise<s
   } catch (e) {
     console.error("Failed to load moods file:", e);
   }
-  return [];
+  return DEFAULT_MOODS;
 }
 
 export class MoodEnergySettingTab extends PluginSettingTab {
