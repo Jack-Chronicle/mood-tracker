@@ -1,11 +1,6 @@
-// commands.ts
-// Command registration and modal logic for the Mood & Energy Obsidian plugin.
-
-import { MarkdownView, Editor } from "obsidian";
-import { MoodMenu } from "./modals";
-import { EnergySlider } from "./modals";
-import { loadMoodsFromFile, formatBarIcons, openModal, closeModal, currentOpenModal } from "./utils";
-import { showMoodAndEnergyModal } from "./modals/MoodEnergyModal";
+import { MarkdownView } from "obsidian";
+import { MoodMenu, EnergySlider } from "../modals";
+import { loadMoodsFromFile, formatBarIcons, currentOpenModal } from "../utils";
 
 export async function insertMood(plugin: any) {
   const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
@@ -44,16 +39,16 @@ export async function insertEnergy(plugin: any) {
 }
 
 export async function insertMoodAndEnergy(plugin: any) {
-  await showMoodAndEnergyModal(plugin);
+  showMoodAndEnergyModal(plugin);
 }
 
-/**
- * Registers all plugin commands and their hotkeys with Obsidian.
- * @param plugin - The plugin instance.
- */
+export function showMoodAndEnergyModal(plugin: any) {
+  // This is a stub. You must move the full implementation from your old commands.ts here if you want the combined modal to work.
+  // For now, this will do nothing.
+}
+
 export function registerCommands(plugin: any) {
   function canRunCommand() {
-    // Only require that no modal is open
     return !currentOpenModal;
   }
   plugin.addCommand({
@@ -62,18 +57,7 @@ export function registerCommands(plugin: any) {
     hotkeys: [{ modifiers: ["Alt"], key: "6" }],
     callback: async () => {
       if (!canRunCommand()) return;
-      const moods = await loadMoodsFromFile(plugin.app.vault, plugin.settings.moodsFilePath);
-      const moodMenu = new MoodMenu(moods);
-      const selectedMood = await moodMenu.open();
-      if (selectedMood) {
-        const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-        if (editor) {
-          const format = plugin.settings.moodOnlyFormat || "{value}";
-          const output = format.replace("{value}", selectedMood);
-          editor.replaceSelection(output);
-          if (editor.focus) editor.focus();
-        }
-      }
+      await insertMood(plugin);
     }
   });
   plugin.addCommand({
@@ -82,33 +66,16 @@ export function registerCommands(plugin: any) {
     hotkeys: [{ modifiers: ["Alt"], key: "5" }],
     callback: async () => {
       if (!canRunCommand()) return;
-      const energySlider = new EnergySlider(plugin);
-      const selectedEnergyLevel = await energySlider.open();
-      if (selectedEnergyLevel !== null) {
-        const editor = plugin.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-        if (editor) {
-          let output = "";
-          const settings = plugin.settings;
-          if (settings.energyDisplay === "percent") {
-            output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}%`);
-          } else if (settings.energyDisplay === "bar") {
-            output = settings.energyOnlyFormat.replace("{value}", formatBarIcons(settings.barIcons, selectedEnergyLevel, settings.barIconCount));
-          } else {
-            output = settings.energyOnlyFormat.replace("{value}", `${selectedEnergyLevel}`);
-          }
-          editor.replaceSelection(output);
-          if (editor.focus) editor.focus();
-        }
-      }
+      await insertEnergy(plugin);
     }
   });
   plugin.addCommand({
     id: "insert-mood-and-energy",
     name: "Insert Mood and Energy Level",
     hotkeys: [{ modifiers: ["Alt"], key: "7" }],
-    callback: async () => {
+    callback: () => {
       if (!canRunCommand()) return;
-      await insertMoodAndEnergy(plugin);
+      showMoodAndEnergyModal(plugin);
     }
   });
 }

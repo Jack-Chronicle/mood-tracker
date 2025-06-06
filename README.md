@@ -1,4 +1,4 @@
-# Obsidian Mood and Energy Plugin
+# Mood and Energy Tracker
 
 This plugin allows users to quickly insert mood and energy level values into their Obsidian notes. It provides a convenient interface for selecting predefined mood items and adjusting energy levels through a slider.
 

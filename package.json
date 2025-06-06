@@ -2,9 +2,13 @@
   "name": "mood-and-energy",
   "version": "1.0.4",
   "description": "A plugin to quickly insert mood and energy level values.",
-  "main": "./main.js",
+  "author": "Jack Chronicle",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/main.js",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --platform=node --external:obsidian --outfile=./main.js --sourcemap"
+    "build": "node esbuild.config.js",
+    "dev": "node esbuild.config.js --watch"
   },
   "keywords": [
     "obsidian",
@@ -13,13 +17,9 @@
     "energy",
     "slider"
   ],
-  "author": "Jack Chronicle",
-  "license": "MIT",
-  "dependencies": {
-    "obsidian": "^1.8.7"
-  },
   "devDependencies": {
     "typescript": "^5.8.3",
+    "obsidian": "^1.8.7",
     "esbuild": "^0.25.5"
   }
 }

@@ -4,8 +4,8 @@
   "version": "1.0.4",
   "author": "Jack Chronicle",
   "description": "A plugin to quickly insert mood and energy level values.",
-  "main": "main.js",
-  "minAppVersion": "0.12.0",
+  "main": "dist/main.js",
+  "minAppVersion": "1.4.0",
   "isDesktopOnly": false,
   "scripts": {
     "build": "tsc",
