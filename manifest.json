@@ -1,6 +1,6 @@
 {
   "id": "mood-energy-plugin",
-  "name": "Quick Mood Insert",
+  "name": "Mood & Energy",
   "version": "1.0.1",
   "author": "Jack Chronicle",
   "description": "A plugin for Obsidian to quickly insert mood and energy level values.",
