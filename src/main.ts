@@ -10,7 +10,8 @@ import { MoodMenu, EnergySlider } from "./modals";
 import { loadMoodsFromFile } from "./utils";
 
 /**
- * Main plugin class for Mood & Energy tracking in Obsidian.
+ * MoodEnergyPlugin: Main plugin class for Mood & Energy tracking in Obsidian.
+ * Handles settings, ribbon icons, and command registration.
  */
 export default class MoodEnergyPlugin extends Plugin {
   settings: MoodEnergyPluginSettings;
@@ -22,14 +23,22 @@ export default class MoodEnergyPlugin extends Plugin {
     this.settings = DEFAULT_SETTINGS;
   }
 
-  
+  /**
+   * Reloads ribbon icons based on current settings.
+   */
   reloadRibbonIcons() {
-    // Remove old icons
     this.ribbonIcons.forEach(icon => icon.remove());
     this.ribbonIcons = [];
-
+    const closeOpenModal = () => {
+      const modals = document.querySelectorAll('.modal-container');
+      modals.forEach((modal: Element) => {
+        const closeBtn = modal.querySelector('.modal-close-button');
+        if (closeBtn instanceof HTMLElement) closeBtn.click();
+      });
+    };
     if (this.settings.showMoodRibbon) {
       const moodIcon = this.addRibbonIcon("smile", "Open Mood Menu", async () => {
+        closeOpenModal();
         const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
         if (editor) editor.focus();
         await insertMood(this);
@@ -38,6 +47,7 @@ export default class MoodEnergyPlugin extends Plugin {
     }
     if (this.settings.showEnergyRibbon) {
       const energyIcon = this.addRibbonIcon("activity", "Open Energy Slider", async () => {
+        closeOpenModal();
         const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
         if (editor) editor.focus();
         await insertEnergy(this);
@@ -46,6 +56,7 @@ export default class MoodEnergyPlugin extends Plugin {
     }
     if (this.settings.showCombinedRibbon) {
       const combinedIcon = this.addRibbonIcon("bar-chart-2", "Open Mood & Energy Modal", async () => {
+        closeOpenModal();
         const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
         if (editor) editor.focus();
         await insertMoodAndEnergy(this);
@@ -54,18 +65,16 @@ export default class MoodEnergyPlugin extends Plugin {
     }
   }
 
-/**
- * Loads settings and registers commands on plugin load.
- */
-async onload() {
-  this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData?.());
-  await this.saveSettings();
-  this.addSettingTab(new MoodEnergySettingTab(this.app, this));
-  registerCommands(this);
-
-  // --- Ribbon icons ---
-  await this.reloadRibbonIcons();
-}
+  /**
+   * Loads settings and registers commands on plugin load.
+   */
+  async onload() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData?.());
+    await this.saveSettings();
+    this.addSettingTab(new MoodEnergySettingTab(this.app, this));
+    registerCommands(this);
+    await this.reloadRibbonIcons();
+  }
 
   /**
    * Saves plugin settings to disk.

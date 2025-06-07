@@ -58,7 +58,7 @@ export class MoodEnergySettingTab extends PluginSettingTab {
       .setDesc("Path to the file containing your moods, one per line (excluding frontmatter). Start typing to see suggestions from your vault.")
       .addText((text: TextComponent) => {
         text.setPlaceholder("moods.txt")
-          .setValue(this.plugin.settings.moodsFilePath)
+          .setValue(this.plugin.settings.moodsFilePath || "")
           .onChange(async (value) => {
             this.plugin.settings.moodsFilePath = value;
             await this.plugin.saveSettings();
