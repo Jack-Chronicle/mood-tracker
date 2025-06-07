@@ -1,0 +1,137 @@
+/* EnergySlider styles */
+.energy-slider-modal, .energy-slider-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  box-sizing: content-box;
+}
+.energy-slider-modal > * {
+  max-width: 500px;
+  box-sizing: border-box;
+}
+.energy-slider-modal h2 {
+  font-size: 1.3em;
+  color: var(--text-normal);
+}
+.energy-slider-modal .energy-preview {
+  margin-top: 16px !important;
+  font-size: 1.2em;
+  font-family: monospace;
+}
+.energy-slider-modal .slider, .energy-slider-inline .slider {
+  display: block;
+  appearance: none;
+  height: 5px;
+  background: color-mix(in srgb, var(--background-modifier-border) 80%, #fff 20%);
+  border-radius: 4px;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.energy-slider-modal .energy-preview {
+  text-align: center;
+  font-family: monospace;
+  font-size: 1em;
+  color: var(--text-normal);
+}
+.energy-slider-modal .slider::-webkit-slider-thumb, .energy-slider-inline .slider::-webkit-slider-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border: 2px solid var(--background-modifier-border);
+  transition: background 0.2s;
+}
+.energy-slider-modal .slider:focus-visible::-webkit-slider-thumb,
+.energy-slider-modal .slider:focus::-webkit-slider-thumb,
+.energy-slider-modal .slider:active::-webkit-slider-thumb,
+.energy-slider-modal .slider:hover::-webkit-slider-thumb {
+  background: var(--interactive-accent);
+}
+.energy-slider-modal .slider::-moz-range-thumb, .energy-slider-inline .slider::-moz-range-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border: 2px solid var(--background-modifier-border);
+  transition: background 0.2s;
+}
+.energy-slider-modal .slider:focus-visible::-moz-range-thumb,
+.energy-slider-modal .slider:focus::-moz-range-thumb,
+.energy-slider-modal .slider:active::-moz-range-thumb,
+.energy-slider-modal .slider:hover::-moz-range-thumb {
+  background: var(--interactive-accent);
+}
+.energy-slider-modal .slider::-ms-thumb, .energy-slider-inline .slider::-ms-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border: 2px solid var(--background-modifier-border);
+  transition: background 0.2s;
+}
+.energy-slider-modal .slider:focus-visible::-ms-thumb,
+.energy-slider-modal .slider:focus::-ms-thumb,
+.energy-slider-modal .slider:active::-ms-thumb,
+.energy-slider-modal .slider:hover::-ms-thumb {
+  background: var(--interactive-accent);
+}
+.energy-slider-modal .mod-cta, .energy-slider-inline .mod-cta {
+  border-radius: var(--radius-s);
+  border: var(--input-border-width) solid var(--background-modifier-border);
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  font-size: 0.96rem;
+  min-height: unset;
+  width: unset;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  box-shadow: none;
+}
+.energy-slider-modal .btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px !important;
+  margin-bottom: 0;
+  padding: 0;
+  width: 100%;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.energy-slider-modal .okay-btn, .energy-slider-inline .okay-btn,
+.energy-slider-modal .cancel-btn, .energy-slider-inline .cancel-btn {
+  font-size: 0.96rem;
+  border-radius: var(--radius-s);
+}
+.energy-slider-modal .okay-btn:hover, .energy-slider-inline .okay-btn:hover,
+.energy-slider-modal .okay-btn:focus, .energy-slider-inline .okay-btn:focus {
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  filter: brightness(1.08);
+}
+.energy-slider-modal .cancel-btn, .energy-slider-inline .cancel-btn {
+  background: var(--background-modifier-hover) !important;
+  color: var(--color-red) !important;
+}
+.energy-slider-modal .cancel-btn:hover, .energy-slider-inline .cancel-btn:hover {
+  background: rgba(255, 0, 0, 0.08) !important;
+  color: var(--color-red) !important;
+  border-color: var(--color-red) !important;
+  filter: none;
+}
+.modal-close-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+}

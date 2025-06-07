@@ -34,6 +34,7 @@ jobs:
           name: plugin-build
           path: |
             dist/main.js
+            dist/styles.css
             manifest.json
             package.json
 
@@ -117,6 +118,7 @@ jobs:
           name: ${{ steps.bump_version.outputs.new_version || steps.use_new_version.outputs.new_version }}
           files: |
             dist/main.js
+            dist/styles.css
             manifest.json
             package.json
         env:

@@ -4,8 +4,10 @@ import esbuild from "esbuild";
 // Add __DEV__ global for dev/prod logging
 const isDev = process.env.npm_lifecycle_event === "dev";
 
+// Define the build options
+// This will bundle the main.ts and styles.css files into a single output directory
 const buildOptions = {
-	entryPoints: ["src/main.ts"],
+	entryPoints: ["src/main.ts", "src/styles/styles.css"],
 	outdir: "dist",
 	bundle: true,
 	external: ["obsidian"],
@@ -22,6 +24,7 @@ const buildOptions = {
 	},
 };
 
+// If in dev mode, enable watch mode
 esbuild.build(buildOptions);
 
 // Only run dev build if explicitly in dev mode
