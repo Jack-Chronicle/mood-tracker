@@ -21,6 +21,7 @@ export class EnergySlider extends Modal {
       const style = document.createElement('link');
       style.id = 'mood-energy-bundle-css';
       style.rel = 'stylesheet';
+      style.type = 'text/css';
       style.href = 'styles.css';
       document.head.appendChild(style);
     }
@@ -34,7 +35,7 @@ export class EnergySlider extends Modal {
       header.className = 'modal-header';
       const title = document.createElement('div');
       title.className = 'modal-title';
-      (title as HTMLElement).innerText = 'Select Energy Level';
+      title.textContent = "Select Energy Level";
       header.appendChild(title);
       modalEl.insertBefore(header, contentEl);
     } else {
@@ -42,18 +43,14 @@ export class EnergySlider extends Modal {
       if (!title) {
         title = document.createElement('div');
         title.className = 'modal-title';
-        (title as HTMLElement).innerText = 'Select Energy Level';
+        title.textContent = "Select Energy Level";
         header.appendChild(title);
       } else {
-        (title as HTMLElement).innerText = 'Select Energy Level';
+        title.textContent = "Select Energy Level";
       }
     }
-    // Set modal width directly via JS for guaranteed effect
     this.modalEl.classList.add("energy-slider-modal");
-    this.modalEl.style.width = "340px";
-    this.modalEl.style.minWidth = "0";
-    this.modalEl.style.maxWidth = "100vw";
-    this.modalEl.style.boxSizing = "border-box";
+    this.modalEl.classList.add("energy-slider-width");
     // Slider
     const slider = document.createElement("input");
     slider.type = "range";

@@ -1,34 +1,28 @@
 /* MoodMenu styles */
-.mood-menu-modal, .mood-menu {
+.mood-menu-modal {
   padding: 24px;
   border-radius: var(--radius-m);
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
   box-sizing: border-box;
 }
-.mood-menu-modal .modal-header, .mood-menu .modal-header {
+.mood-menu-modal .modal-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 18px;
 }
-.mood-menu-modal .modal-title, .mood-menu .modal-title {
+.mood-menu-modal .modal-title {
   text-align: center;
+  padding-top: 24px;
   width: 100%;
   font-size: 1.3em;
   color: var(--text-normal);
   margin: 0;
 }
-.mood-menu h2 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 1.3em;
-  color: var(--text-normal);
-}
-.mood-menu .mod-cta, .mood-menu-modal .mod-cta {
-  padding: var(--size-4-2) var(--size-4-4);
+.mood-menu-modal .mod-cta {
+  padding: 4px 12px;
   border-radius: var(--radius-s);
   border: var(--input-border-width) solid var(--background-modifier-border);
   background: var(--background-modifier-hover);
@@ -37,82 +31,88 @@
   font-weight: bold;
   cursor: pointer;
   min-height: 48px;
-  min-width: 80px;
-  width: 100%;
+  min-width: 60px !important;
+  max-width: 120px !important;
+  width: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-bottom: 8px;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.mood-menu-modal .mod-cta, .mood-menu .mod-cta, .mood-menu-modal .back-btn, .mood-menu .back-btn {
-  padding: 4px 12px;
-  border-radius: var(--radius-s);
-  border: var(--input-border-width) solid var(--background-modifier-border);
+.mood-menu-modal .mod-cta, .mood-menu-modal .back-btn {
   font-weight: 500;
-  cursor: pointer;
-  background: var(--background-modifier-hover);
-  color: var(--text-normal);
+  color: var(--text-accent);
   font-size: 0.98rem;
-  min-width: 48px;
   margin-bottom: 0;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.mood-menu-modal .okay-btn, .mood-menu .okay-btn,
-.mood-menu-modal .cancel-btn, .mood-menu .cancel-btn,
-.mood-menu-modal .back-btn, .mood-menu .back-btn {
+.mood-menu-modal .okay-btn,
+.mood-menu-modal .cancel-btn,
+.mood-menu-modal .back-btn {
   font-size: 0.98rem;
   padding: 4px 12px;
   min-width: 48px;
   border-radius: var(--radius-s);
 }
-.mood-menu-modal .okay-btn, .mood-menu .okay-btn {
+.mood-menu-modal .okay-btn {
   background: var(--background-modifier-hover) !important;
   color: var(--text-normal) !important;
 }
-.mood-menu-modal .okay-btn:hover, .mood-menu-modal .okay-btn:focus,
-.mood-menu .okay-btn:hover, .mood-menu .okay-btn:focus {
+.mood-menu-modal .okay-btn:hover,
+.mood-menu-modal .okay-btn:focus {
   background: var(--interactive-accent) !important;
   color: var(--text-on-accent) !important;
   filter: brightness(1.08);
 }
-.mood-menu-modal .cancel-btn, .mood-menu .cancel-btn {
+.mood-menu-modal .cancel-btn {
   background: var(--background-modifier-hover) !important;
   color: var(--color-red) !important;
 }
-.mood-menu-modal .cancel-btn:hover, .mood-menu-modal .cancel-btn:focus,
-.mood-menu .cancel-btn:hover, .mood-menu .cancel-btn:focus {
+.mood-menu-modal .cancel-btn:hover,
+.mood-menu-modal .cancel-btn:focus {
   background: rgba(255, 0, 0, 0.08) !important;
   color: var(--color-red) !important;
   border-color: var(--color-red) !important;
   filter: none;
 }
-.mood-menu-modal .back-btn, .mood-menu .back-btn {
+.mood-menu-modal .back-btn {
   background: var(--background-modifier-hover) !important;
-  color: var(--text-normal) !important;
+  color: var(--text-accent) !important;
   border: var(--input-border-width) solid var(--background-modifier-border);
-  font-size: 1rem;
-  font-weight: bold;
+  width: fit-content !important;
+  font-size: 0.98rem;
+  font-weight: 500;
   border-radius: var(--radius-s);
   margin-bottom: 12px;
-  align-self: flex-start;
-  padding: var(--size-4-2) var(--size-4-4);
+  align-self: start;
+  padding: 4px 12px;
+  min-width: 48px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.mood-menu-modal .back-btn:hover, .mood-menu-modal .back-btn:focus,
-.mood-menu .back-btn:hover, .mood-menu .back-btn:focus {
-  background: var(--background-modifier-active-hover) !important;
+.mood-menu-modal .back-btn:hover,
+.mood-menu-modal .back-btn:focus {
+  background: rgba(30, 120, 255, 0.1) !important; /* slightly more blue on hover */
   color: var(--interactive-accent) !important;
   border-color: var(--interactive-accent) !important;
+  filter: none;
 }
-.mood-menu .mod-cta.selected-mood, .mood-menu-modal .mod-cta.selected-mood {
+.mood-menu-modal .mod-cta.selected-mood {
   background: var(--interactive-accent) !important;
   color: var(--text-on-accent) !important;
   border: var(--input-border-width) solid var(--background-primary) !important;
 }
-.mood-menu .mod-cta:hover, .mood-menu-modal .mod-cta:hover {
+.mood-menu-modal .mod-cta:hover {
   background: var(--background-modifier-active-hover);
 }
+.mood-menu-modal .modal-close-button {
+  display: none !important;
+}
+/* Customizable padding for MoodMenu modal */
+.mood-padding {
+  padding: 0px 50px 0px 50px;
+}
 @media (max-width: 600px) {
-  .mood-menu-modal, .mood-menu {
+  .mood-menu-modal {
     padding: 8px;
     width: 98vw;
     min-width: 0;
