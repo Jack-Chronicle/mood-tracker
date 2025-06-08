@@ -61,8 +61,8 @@ export class MoodEnergy extends Modal {
     contentEl.classList.remove("mood-energy-modal");
     // Container for the rest of the modal content (flex row/column)
     contentEl.style.display = "flex";
-    contentEl.style.flexDirection = window.innerWidth < 600 ? "column" : "row";
-    contentEl.style.alignItems = "stretch";
+    contentEl.classList.add("responsive-layout");
+    contentEl.style.padding = window.innerWidth < 600 ? "8px" : "24px";
     contentEl.style.borderRadius = "var(--radius-m)";
     contentEl.style.overflow = "visible";
     contentEl.style.maxWidth = "98vw";

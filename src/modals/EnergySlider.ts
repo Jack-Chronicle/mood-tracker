@@ -49,12 +49,8 @@ export class EnergySlider extends Modal {
         title.textContent = "Select Energy Level";
       }
     }
-    // Set modal width directly via JS for guaranteed effect
     this.modalEl.classList.add("energy-slider-modal");
-    this.modalEl.style.width = "340px";
-    this.modalEl.style.minWidth = "0";
-    this.modalEl.style.maxWidth = "100vw";
-    this.modalEl.style.boxSizing = "border-box";
+    this.modalEl.classList.add("energy-slider-width");
     // Slider
     const slider = document.createElement("input");
     slider.type = "range";

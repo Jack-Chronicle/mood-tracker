@@ -176,6 +176,22 @@
 .mood-energy-modal .modal-close-button {
   display: none !important;
 }
+
+/* Responsive flex direction for modal content container */
+.responsive-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  gap: 0;
+}
+@media (max-width: 600px) {
+  .responsive-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
 @media (max-width: 600px) {
   .mood-energy-modal {
     flex-direction: column;

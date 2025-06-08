@@ -107,6 +107,10 @@
 .mood-menu-modal .modal-close-button {
   display: none !important;
 }
+/* Customizable padding for MoodMenu modal */
+.mood-padding {
+  padding: 0px 50px 0px 50px;
+}
 @media (max-width: 600px) {
   .mood-menu-modal {
     padding: 8px;
