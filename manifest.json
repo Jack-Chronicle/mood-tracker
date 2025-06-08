@@ -1,7 +1,7 @@
 {
   "id": "mood-and-energy",
   "name": "Mood & Energy",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Jack Chronicle",
   "description": "A plugin to quickly insert mood and energy level values.",
   "main": "dist/main.js",
