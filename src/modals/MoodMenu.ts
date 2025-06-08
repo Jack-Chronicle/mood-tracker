@@ -23,12 +23,10 @@ export class MoodMenu extends Modal {
       style.href = 'styles.css';
       document.head.appendChild(style);
     }
-    const { contentEl, modalEl } = this;
+    const { contentEl } = this;
     contentEl.empty();
     contentEl.classList.add("mood-menu-modal");
-    contentEl.style.margin = "0";
-    contentEl.style.padding = "0";
-    // Modal header and title (always at top)
+    const { modalEl } = this;
     let header = modalEl.querySelector('.modal-header');
     if (!header) {
       header = document.createElement("div");
@@ -37,21 +35,22 @@ export class MoodMenu extends Modal {
       title.className = "modal-title";
       title.textContent = "Select Mood";
       header.appendChild(title);
-      if (modalEl.firstChild !== header) {
-        modalEl.insertBefore(header, modalEl.firstChild);
-      }
+      modalEl.insertBefore(header, contentEl);
     } else {
       let title = header.querySelector('.modal-title');
       if (!title) {
-        title = document.createElement("div");
-        title.className = "modal-title";
+        title = document.createElement('div');
+        title.className = 'modal-title';
+        title.textContent = "Select Mood";
         header.appendChild(title);
-      }
-      title.textContent = "Select Mood";
-      if (modalEl.firstChild !== header) {
-        modalEl.insertBefore(header, modalEl.firstChild);
+      } else {
+        title.textContent = "Select Mood";
       }
     }
+    this.modalEl.classList.add("mood-menu-modal");
+    this.modalEl.style.width = "fit-content";
+    this.modalEl.style.margin = "0";
+    this.modalEl.style.padding = "0px 50px 0px 50px"; // Add padding to the modal
     // Create grid and detail containers for modal
     const sectionGrid = document.createElement("div");
     sectionGrid.className = "mood-menu-grid";
@@ -327,7 +326,10 @@ export class MoodMenu extends Modal {
         if (sortedMoods.length > 0) {
           const moodsGrid = document.createElement("div");
           moodsGrid.style.display = "grid";
-          moodsGrid.style.gridTemplateColumns = "repeat(auto-fit, minmax(100px, 1fr))";
+          // Use the same column logic as the root grid for consistency
+          const moodCount = sortedMoods.length;
+          const columns = getCustomColumns(moodCount);
+          moodsGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
           moodsGrid.style.gap = "12px";
           moodsGrid.style.width = "100%";
           sortedMoods.forEach((mood) => {

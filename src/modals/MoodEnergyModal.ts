@@ -28,24 +28,20 @@ export class MoodEnergy extends Modal {
       const style = document.createElement('link');
       style.id = 'mood-energy-bundle-css';
       style.rel = 'stylesheet';
+      style.type = 'text/css';
       style.href = 'styles.css';
       document.head.appendChild(style);
     }
     const { contentEl, modalEl } = this;
     contentEl.empty();
-    contentEl.classList.add("mood-energy-modal");
     // Modal header and title (always at top)
     let header = modalEl.querySelector('.modal-header');
-    // Override modalEl width so contentEl controls modal width
-    modalEl.style.width = 'unset';
-    modalEl.style.minWidth = 'unset';
-    modalEl.style.maxWidth = 'unset';
     if (!header) {
       header = document.createElement('div');
       header.className = 'modal-header';
       const title = document.createElement('div');
       title.className = 'modal-title';
-      (title as HTMLElement).innerText = 'Mood & Energy';
+      title.textContent = "Mood & Energy";
       header.appendChild(title);
       modalEl.insertBefore(header, contentEl);
     } else {
@@ -53,22 +49,22 @@ export class MoodEnergy extends Modal {
       if (!title) {
         title = document.createElement('div');
         title.className = 'modal-title';
-        (title as HTMLElement).innerText = 'Mood & Energy';
+        title.textContent = "Mood & Energy";
         header.appendChild(title);
       } else {
-        (title as HTMLElement).innerText = 'Mood & Energy';
+        title.textContent = "Mood & Energy";
       }
     }
+    // Add modal class to modalEl for appearance
+    this.modalEl.classList.add("mood-energy-modal");
+    // Remove any appearance class from contentEl
+    contentEl.classList.remove("mood-energy-modal");
     // Container for the rest of the modal content (flex row/column)
     contentEl.style.display = "flex";
     contentEl.style.flexDirection = window.innerWidth < 600 ? "column" : "row";
     contentEl.style.alignItems = "stretch";
-    contentEl.style.padding = window.innerWidth < 600 ? "8px" : "24px";
     contentEl.style.borderRadius = "var(--radius-m)";
-    contentEl.style.maxHeight = window.innerWidth < 600 ? "98vh" : "80vh";
     contentEl.style.overflow = "visible";
-    contentEl.style.width = window.innerWidth < 600 ? "98vw" : "min(900px, 98vw)";
-    contentEl.style.minWidth = window.innerWidth < 600 ? "0" : "340px";
     contentEl.style.maxWidth = "98vw";
     // Modal content container
     const modalContent = document.createElement("div");
