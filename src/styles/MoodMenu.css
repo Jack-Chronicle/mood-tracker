@@ -22,7 +22,7 @@
   margin: 0;
 }
 .mood-menu-modal .mod-cta {
-  padding: var(--size-4-2) var(--size-4-4);
+  padding: 4px 12px;
   border-radius: var(--radius-s);
   border: var(--input-border-width) solid var(--background-modifier-border);
   background: var(--background-modifier-hover);
@@ -40,16 +40,10 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .mood-menu-modal .mod-cta, .mood-menu-modal .back-btn {
-  padding: 4px 12px;
-  border-radius: var(--radius-s);
-  border: var(--input-border-width) solid var(--background-modifier-border);
   font-weight: 500;
-  cursor: pointer;
-  background: var(--background-modifier-hover);
   color: var(--text-accent);
   font-size: 0.98rem;
   margin-bottom: 0;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .mood-menu-modal .okay-btn,
 .mood-menu-modal .cancel-btn,

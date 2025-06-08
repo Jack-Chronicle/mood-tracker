@@ -50,7 +50,7 @@ export class MoodMenu extends Modal {
     this.modalEl.classList.add("mood-menu-modal");
     this.modalEl.style.width = "fit-content";
     this.modalEl.style.margin = "0";
-    this.modalEl.style.padding = "0px 50px 0px 50px"; // Add padding to the modal
+    this.modalEl.classList.add("mood-menu-padding"); // Add padding via CSS class
     // Create grid and detail containers for modal
     const sectionGrid = document.createElement("div");
     sectionGrid.className = "mood-menu-grid";
