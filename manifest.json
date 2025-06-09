@@ -6,13 +6,5 @@
   "description": "A plugin to quickly insert mood and energy level values.",
   "main": "dist/main.js",
   "minAppVersion": "1.4.0",
-  "isDesktopOnly": false,
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "typescript": "^4.0.0"
-  }
+  "isDesktopOnly": false
 }
